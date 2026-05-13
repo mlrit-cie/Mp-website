@@ -29,10 +29,10 @@ const AppSidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
   };
 
   const roleColor: Record<string, string> = {
-    admin: 'bg-destructive',
-    faculty: 'bg-secondary',
-    student_mentor: 'bg-primary',
-    student: 'bg-warning',
+    admin: 'bg-destructive', // Red
+    faculty: 'bg-secondary', // Blue
+    student_mentor: 'bg-primary', // Green
+    student: 'bg-secondary/80', // Soft Blue
   };
 
   const navItems = [
@@ -71,7 +71,7 @@ const AppSidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
         </div>
         {!collapsed && (
           <div className="overflow-hidden">
-            <p className="font-heading font-bold text-sidebar-foreground text-sm leading-tight text-center">CIE MLRIT<br/>Project Hub</p>
+            <p className="font-heading font-bold text-sidebar-foreground text-sm leading-tight text-center">ProjectSphere</p>
             <p className="text-[10px] text-sidebar-muted truncate">MLRIT Portal</p>
           </div>
         )}

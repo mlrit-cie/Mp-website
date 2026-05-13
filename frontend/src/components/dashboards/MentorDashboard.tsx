@@ -1,24 +1,41 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import StatCard from '@/components/StatCard';
 import StatusBadge from '@/components/StatusBadge';
-import { mockProjects, mockTeams, mockSections, mockTimetable } from '@/lib/mock-data';
 import { useAuth } from '@/contexts/AuthContext';
-import { DayOfWeek } from '@/lib/types';
-import { FolderKanban, FileCheck, Clock, Users, Calendar, MapPin } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { FolderKanban, FileCheck, Clock, Users, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useMentor } from '@/hooks/useMentor';
 
 const MentorDashboard: React.FC = () => {
   const { user } = useAuth();
-  const assignedSections = mockSections.filter(s => s.studentMentors.some(m => m.id === user?.id));
-  const sectionIds = assignedSections.map(s => s.id);
-  const sectionTeams = mockTeams.filter(t => sectionIds.includes(t.sectionId));
-  const sectionProjects = mockProjects.filter(p => sectionIds.includes(p.sectionId));
-  const pendingReviews = sectionProjects.filter(p => p.status === 'Student Mentor Review').length;
+  const { assignedSections, currentSectionTeams, loading, fetchSectionData } = useMentor();
+  const [todaysClasses, setTodaysClasses] = useState<any[]>([]);
 
-  const today = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date()) as DayOfWeek;
-  const todaysClasses = mockTimetable
-    .filter(e => e.studentMentorIds.includes(user?.id || '') && e.day === today)
-    .sort((a, b) => a.startTime.localeCompare(b.startTime));
+  useEffect(() => {
+    if (assignedSections.length > 0) fetchSectionData(assignedSections[0].id);
+  }, [assignedSections]);
+
+  useEffect(() => {
+    if (!user) return;
+    const today = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date());
+    supabase
+      .from('timetable')
+      .select('id, day_of_week, start_time, end_time, room_number, student_mentor_ids, sections(name)')
+      .contains('student_mentor_ids', [Number(user.id)])
+      .eq('day_of_week', today)
+      .order('start_time')
+      .then(({ data }) => {
+        setTodaysClasses(
+          (data || []).map((e: any) => ({
+            id: e.id, startTime: e.start_time?.slice(0, 5), endTime: e.end_time?.slice(0, 5),
+            room: e.room_number, sectionName: e.sections?.name || '—',
+          }))
+        );
+      });
+  }, [user]);
+
+  const pendingReviews = currentSectionTeams.filter(t => t.project_status === 'Student Mentor Review').length;
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -30,53 +47,51 @@ const MentorDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard title="My Teams" value={sectionTeams.length} icon={<FolderKanban className="w-5 h-5" />} variant="green" />
-            <StatCard title="Students" value={sectionTeams.reduce((a, t) => a + t.members.length, 0)} icon={<Users className="w-5 h-5" />} variant="blue" />
+            <StatCard title="My Teams" value={currentSectionTeams.length} icon={<FolderKanban className="w-5 h-5" />} variant="green" />
+            <StatCard title="Assigned Sections" value={assignedSections.length} icon={<Users className="w-5 h-5" />} variant="blue" />
             <StatCard title="Pending Reviews" value={pendingReviews} icon={<Clock className="w-5 h-5" />} variant="red" />
-            <StatCard title="Total Projects" value={sectionProjects.length} icon={<FileCheck className="w-5 h-5" />} variant="green" />
+            <StatCard title="Section" value={assignedSections[0]?.name || '—'} icon={<FileCheck className="w-5 h-5" />} variant="green" />
           </div>
 
           <div className="rounded-xl border border-border bg-card p-5">
             <h3 className="font-heading font-semibold mb-4">Teams Overview</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {sectionTeams.map(t => {
-                const project = mockProjects.find(p => p.id === t.projectId);
-                return (
+            {loading ? (
+              <p className="text-sm text-muted-foreground text-center py-6">Loading teams...</p>
+            ) : currentSectionTeams.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {currentSectionTeams.map(t => (
                   <div key={t.id} className="p-4 rounded-lg border border-border bg-muted/20">
                     <div className="flex items-center justify-between mb-2">
                       <p className="font-medium">{t.name}</p>
-                      {project && <StatusBadge status={project.status} />}
+                      <StatusBadge status={t.project_status || 'Draft'} />
                     </div>
-                    <p className="text-xs text-muted-foreground truncate">{t.members.map(m => m.name).join(', ')}</p>
-                    {project && <p className="text-sm mt-2 text-foreground/80 line-clamp-1">{project.title}</p>}
+                    <p className="text-xs text-muted-foreground truncate">{t.member_names || '—'}</p>
+                    <p className="text-sm mt-2 text-foreground/80 line-clamp-1">{t.project_title || 'No project yet'}</p>
                   </div>
-                );
-              })}
-              {sectionTeams.length === 0 && (
-                <p className="text-sm text-muted-foreground text-center py-8 col-span-2">No teams in your sections</p>
-              )}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                {assignedSections.length === 0 ? 'No sections assigned yet' : 'No teams in your section yet'}
+              </p>
+            )}
           </div>
         </div>
 
         <div className="lg:col-span-1 space-y-4">
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 relative overflow-hidden">
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
             <h3 className="text-sm font-heading font-bold text-primary flex items-center gap-2 mb-3">
               <Calendar className="w-4 h-4" /> Today's Schedule
             </h3>
             {todaysClasses.length > 0 ? (
               <div className="space-y-3">
-                {todaysClasses.map(entry => (
-                  <div key={entry.id} className="p-3 rounded-lg bg-white dark:bg-card border border-primary/10 shadow-sm">
+                {todaysClasses.map(e => (
+                  <div key={e.id} className="p-3 rounded-lg bg-white dark:bg-card border border-primary/10 shadow-sm">
                     <div className="flex justify-between items-start mb-1">
-                      <span className="text-[10px] font-bold text-primary">{entry.startTime} - {entry.endTime}</span>
-                      <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded uppercase font-bold">
-                        {entry.room}
-                      </span>
+                      <span className="text-[10px] font-bold text-primary">{e.startTime} – {e.endTime}</span>
+                      <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded uppercase font-bold">{e.room}</span>
                     </div>
-                    <p className="text-xs font-semibold truncate">
-                      {entry.sectionName}
-                    </p>
+                    <p className="text-xs font-semibold truncate">{e.sectionName}</p>
                   </div>
                 ))}
               </div>

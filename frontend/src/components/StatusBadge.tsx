@@ -1,8 +1,9 @@
 import React from 'react';
-import { ProjectStatus } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 
-const statusVariant: Record<ProjectStatus, 'draft' | 'warning' | 'info' | 'success' | 'default' | 'secondary'> = {
+type BadgeVariant = 'draft' | 'warning' | 'info' | 'success' | 'default' | 'secondary';
+
+const statusVariant: Record<string, BadgeVariant> = {
   'Draft': 'draft',
   'Student Mentor Review': 'warning',
   'Faculty Review': 'info',
@@ -12,11 +13,12 @@ const statusVariant: Record<ProjectStatus, 'draft' | 'warning' | 'info' | 'succe
 };
 
 interface StatusBadgeProps {
-  status: ProjectStatus;
+  status: string;
 }
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
-  return <Badge variant={statusVariant[status]}>{status}</Badge>;
+  const variant: BadgeVariant = statusVariant[status] ?? 'secondary';
+  return <Badge variant={variant}>{status}</Badge>;
 };
 
 export default StatusBadge;

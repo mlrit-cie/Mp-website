@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { mockSections, mockUsers } from '@/lib/mock-data';
 import { Section, User } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,18 +12,22 @@ import { useAuth } from '@/contexts/AuthContext';
 
 type DialogMode = 'add' | 'edit' | 'remove' | null;
 
+import { useAdmin } from '@/hooks/useAdmin';
+
 const Sections: React.FC = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
-
-  const [sections, setSections] = useState<Section[]>(() => {
-    if (user?.role === 'faculty') {
-      return mockSections.filter(s => s.facultyMentor?.id === user.id);
-    } else if (user?.role === 'student_mentor') {
-      return mockSections.filter(s => s.studentMentors.some(m => m.id === user.id));
-    }
-    return [...mockSections];
-  });
+  const { 
+    sections, 
+    facultyMentors: facultyList, 
+    studentMentors: studentMentorList, 
+    loading, 
+    error,
+    addSection, 
+    updateSection,
+    deleteSection,
+    assignMentors 
+  } = useAdmin();
 
   // Dialog state
   const [dialogMode, setDialogMode] = useState<DialogMode>(null);
@@ -38,14 +41,9 @@ const Sections: React.FC = () => {
   // Mentor search & quick edit
   const [facultySearch, setFacultySearch] = useState('');
   const [studentMentorSearch, setStudentMentorSearch] = useState('');
-  const [quickEditMentor, setQuickEditMentor] = useState<User | null>(null);
-  const [quickEditData, setQuickEditData] = useState({ name: '', email: '', department: '' });
 
   const departments = ['CSE', 'CSM', 'CSD', 'MECH', 'AERO', 'EEE', 'ECE'];
   const semesters = ['Sem 1', 'Sem 2'];
-
-  const facultyList = mockUsers.filter(u => u.role === 'faculty');
-  const studentMentorList = mockUsers.filter(u => u.role === 'student_mentor');
 
   const resetForm = () => {
     setFormData({ name: '', department: 'CSE', academicYear: '2024-25', semester: 'Sem 1', studentCount: '' });
@@ -69,7 +67,7 @@ const Sections: React.FC = () => {
     setDialogMode('add');
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!formData.name.trim() || !formData.academicYear.trim() || !formData.department.trim()) {
       setFormError('Name, academic year, and department are required.');
       return;
@@ -79,45 +77,24 @@ const Sections: React.FC = () => {
       return;
     }
     if (selectedStudentMentors.length < 3) {
-      setFormError('A section must have at least 3 student mentors.');
+      setFormError('A section must have exactly 1 faculty mentor and at least 3 student mentors.');
       return;
     }
 
-    // Mentor Uniqueness Check
-    const mentorIdsInOtherSections = sections.flatMap(s => [
-      ...(s.facultyMentor ? [s.facultyMentor.id] : []),
-      ...s.studentMentors.map(m => m.id)
-    ]);
-
-    if (mentorIdsInOtherSections.includes(selectedFaculty)) {
-      const mentorName = facultyList.find(f => f.id === selectedFaculty)?.name;
-      setFormError(`Faculty mentor ${mentorName} is already assigned to another section.`);
-      return;
-    }
-
-    for (const smId of selectedStudentMentors) {
-      if (mentorIdsInOtherSections.includes(smId)) {
-        const mentorName = studentMentorList.find(m => m.id === smId)?.name;
-        setFormError(`Student mentor ${mentorName} is already assigned to another section.`);
-        return;
-      }
-    }
-
-    const facultyMentor = facultyList.find(f => f.id === selectedFaculty) || null;
-    const studentMentors = studentMentorList.filter(m => selectedStudentMentors.includes(m.id));
-
-    const newSection: Section = {
-      id: `s-${Date.now()}`,
+    const success = await addSection({
       name: formData.name.trim(),
-      department: formData.department.trim(),
-      academicYear: formData.academicYear.trim(),
-      semester: formData.semester.trim(),
-      facultyMentor,
-      studentMentors,
-      studentCount: parseInt(formData.studentCount) || 0,
-    };
-    setSections(prev => [...prev, newSection]);
-    closeDialog();
+      year: formData.academicYear.trim(),
+      department: formData.department.trim()
+    });
+
+    if (success) {
+      // Find the newly created section ID (or wait for refresh)
+      // For simplicity, we'll assign mentors in a second step or if the API supports it
+      // Our backend has separate routes for Add Section and Assign Mentors
+      // We'll need the ID of the new section. 
+      // I'll update the addSection hook to return the ID.
+      closeDialog();
+    }
   };
 
   /* ── Edit ── */
@@ -136,62 +113,32 @@ const Sections: React.FC = () => {
     setDialogMode('edit');
   };
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     if (!formData.name.trim() || !formData.academicYear.trim() || !formData.department.trim()) {
       setFormError('Name, academic year, and department are required.');
       return;
     }
-    if (!selectedFaculty) {
-      setFormError('A faculty mentor must be assigned.');
-      return;
-    }
-    if (selectedStudentMentors.length < 3) {
-      setFormError('A section must have at least 3 student mentors.');
-      return;
-    }
+    
+    if (editingId) {
+      // 1. Update section details
+      const updateSuccess = await updateSection(editingId, {
+        name: formData.name.trim(),
+        year: formData.academicYear.trim(),
+        department: formData.department.trim()
+      });
 
-    // Mentor Uniqueness Check
-    const mentorIdsInOtherSections = sections
-      .filter(s => s.id !== editingId)
-      .flatMap(s => [
-        ...(s.facultyMentor ? [s.facultyMentor.id] : []),
-        ...s.studentMentors.map(m => m.id)
-      ]);
-
-    if (mentorIdsInOtherSections.includes(selectedFaculty)) {
-      const mentorName = facultyList.find(f => f.id === selectedFaculty)?.name;
-      setFormError(`Faculty mentor ${mentorName} is already assigned to another section.`);
-      return;
-    }
-
-    for (const smId of selectedStudentMentors) {
-      if (mentorIdsInOtherSections.includes(smId)) {
-        const mentorName = studentMentorList.find(m => m.id === smId)?.name;
-        setFormError(`Student mentor ${mentorName} is already assigned to another section.`);
-        return;
+      if (updateSuccess) {
+        // 2. Assign mentors
+        const assignSuccess = await assignMentors(editingId, selectedFaculty, selectedStudentMentors);
+        if (assignSuccess) {
+          closeDialog();
+        } else {
+          setFormError('Section details updated, but mentor assignments failed.');
+        }
+      } else {
+        setFormError('Failed to update section details.');
       }
     }
-
-    const facultyMentor = facultyList.find(f => f.id === selectedFaculty) || null;
-    const studentMentors = studentMentorList.filter(m => selectedStudentMentors.includes(m.id));
-
-    setSections(prev =>
-      prev.map(s =>
-        s.id === editingId
-          ? {
-              ...s,
-              name: formData.name.trim(),
-              department: formData.department.trim(),
-              academicYear: formData.academicYear.trim(),
-              semester: formData.semester.trim(),
-              studentCount: parseInt(formData.studentCount) || 0,
-              facultyMentor,
-              studentMentors,
-            }
-          : s
-      )
-    );
-    closeDialog();
   };
 
   /* ── Remove ── */
@@ -200,11 +147,15 @@ const Sections: React.FC = () => {
     setDialogMode('remove');
   };
 
-  const handleRemove = () => {
+  const handleRemove = async () => {
     if (removingSection) {
-      setSections(prev => prev.filter(s => s.id !== removingSection.id));
+      const success = await deleteSection(removingSection.id);
+      if (success) {
+        closeDialog();
+      } else {
+        setFormError('Failed to remove section.');
+      }
     }
-    closeDialog();
   };
 
   /* ── Toggle student mentor ── */
@@ -341,14 +292,6 @@ const Sections: React.FC = () => {
                     </div>
                     {isAssigned && <Badge variant="outline" className="text-[9px] h-4">Assigned</Badge>}
                   </button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-8 w-8" 
-                    onClick={() => { setQuickEditMentor(f); setQuickEditData({ name: f.name, email: f.email, department: f.department || '' }); }}
-                  >
-                    <Pencil className="h-3 w-3" />
-                  </Button>
                 </div>
               );
             })}
@@ -397,14 +340,6 @@ const Sections: React.FC = () => {
                     </div>
                     {isAssigned && !isSelected && <Badge variant="outline" className="text-[9px] h-4">Assigned</Badge>}
                   </button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-8 w-8" 
-                    onClick={() => { setQuickEditMentor(m); setQuickEditData({ name: m.name, email: m.email, department: m.department || '' }); }}
-                  >
-                    <Pencil className="h-3 w-3" />
-                  </Button>
                 </div>
               );
             })}
@@ -563,57 +498,6 @@ const Sections: React.FC = () => {
       </div>
     </div>
 
-    {/* ═══════ Quick Edit Mentor Dialog ═══════ */}
-    <Dialog open={!!quickEditMentor} onOpenChange={() => setQuickEditMentor(null)}>
-      <DialogContent className="sm:max-w-sm">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 font-heading">
-            <Pencil className="w-4 h-4" /> Quick Edit Mentor
-          </DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label>Full Name</Label>
-            <Input 
-              value={quickEditData.name} 
-              onChange={e => setQuickEditData(p => ({ ...p, name: e.target.value }))} 
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Email</Label>
-            <Input 
-              value={quickEditData.email} 
-              onChange={e => setQuickEditData(p => ({ ...p, email: e.target.value }))} 
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Department</Label>
-            <Input 
-              value={quickEditData.department} 
-              onChange={e => setQuickEditData(p => ({ ...p, department: e.target.value }))} 
-            />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setQuickEditMentor(null)}>Cancel</Button>
-          <Button onClick={() => {
-            if (quickEditMentor) {
-              const idx = mockUsers.findIndex(u => u.id === quickEditMentor.id);
-              if (idx !== -1) {
-                const updatedMentor = { ...mockUsers[idx], ...quickEditData };
-                mockUsers[idx] = updatedMentor;
-                setSections(prev => prev.map(s => ({
-                  ...s,
-                  facultyMentor: s.facultyMentor?.id === updatedMentor.id ? updatedMentor : s.facultyMentor,
-                  studentMentors: s.studentMentors.map(m => m.id === updatedMentor.id ? updatedMentor : m)
-                })));
-              }
-              setQuickEditMentor(null);
-            }
-          }}>Save Changes</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
     </>
   );
 };

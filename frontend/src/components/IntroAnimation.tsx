@@ -6,10 +6,10 @@ import { GraduationCap } from "lucide-react";
 export type AnimationPhase = "scatter" | "line" | "circle" | "bottom-strip";
 
 const PAGE_DETAILS = [
-  { title: "Student Portal", desc: "Access your project workspace", to: "/login/student" },
-  { title: "Mentor Dashboard", desc: "Guide and evaluate teams", to: "/login/mentor" },
-  { title: "Faculty View", desc: "Monitor department progress", to: "/login/faculty" },
-  { title: "Admin Console", desc: "System-wide management", to: "/login/admin" },
+  { title: "Student Portal", desc: "Access your project workspace", to: "/login" },
+  { title: "Mentor Dashboard", desc: "Guide and evaluate teams", to: "/login" },
+  { title: "Faculty View", desc: "Monitor department progress", to: "/login" },
+  { title: "Admin Console", desc: "System-wide management", to: "/login" },
   { title: "Project Archive", desc: "Explore past innovations", to: "/archive" },
   { title: "Active Teams", desc: "Collaborate with peers", to: "/teams" },
   { title: "Announcements", desc: "Latest hub updates", to: "/announcements" },
@@ -20,12 +20,13 @@ const PAGE_DETAILS = [
   { title: "Profile", desc: "Manage your credentials", to: "/profile" },
   { title: "Projects", desc: "All ongoing works", to: "/projects" },
   { title: "Dashboard", desc: "Overview of your progress", to: "/dashboard" },
-  { title: "MLRIT Portal", desc: "Official college site", to: "/login/student" },
+  { title: "MLRIT Portal", desc: "Official college site", to: "/login" },
   { title: "CIE Vision", desc: "Innovation & Future", to: "/profile" },
   { title: "Help Center", desc: "Get platform support", to: "/profile" },
   { title: "Tech Stack", desc: "How we build things", to: "/profile" },
-  { title: "Join Us", desc: "Be part of the community", to: "/login/student" },
+  { title: "Join Us", desc: "Be part of the community", to: "/login" },
   { title: "CIE MLRIT", desc: "Project Hub Home", to: "/" },
+  { title: "ProjectSphere", desc: "Digital Management Hub", to: "/" },
 ];
 
 interface FlipCardProps {
@@ -261,11 +262,11 @@ function FlipCard({
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >
           <div className="text-center w-full px-1">
-            <p className="text-[6px] font-bold text-blue-400 uppercase tracking-widest mb-1 truncate">{PAGE_DETAILS[index].title}</p>
+            <p className="text-[6px] font-bold text-green-500 uppercase tracking-widest mb-1 truncate">{PAGE_DETAILS[index].title}</p>
             <p className="text-[5px] text-gray-400 leading-tight line-clamp-2">{PAGE_DETAILS[index].desc}</p>
             <Link 
               to={PAGE_DETAILS[index].to}
-              className="mt-2 inline-block w-full py-1 rounded bg-blue-500 text-[5px] text-white hover:bg-blue-600 transition-colors text-center"
+              className="mt-2 inline-block w-full py-1 rounded bg-green-500 text-[5px] text-white hover:bg-green-600 transition-colors text-center"
             >
               Open Page
             </Link>
@@ -455,12 +456,12 @@ export default function IntroAnimation() {
           <div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center transition-transform group-hover:scale-105">
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
-          <span className="font-heading font-bold text-gray-900 tracking-tight">CIE MLRIT Project Hub</span>
+          <span className="font-heading font-bold text-gray-900 tracking-tight">ProjectSphere</span>
         </div>
         
         <div className="pointer-events-auto">
           <Link 
-            to="/login/student"
+            to="/login"
             className="px-6 py-2.5 rounded-full bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-black/5"
           >
             Login

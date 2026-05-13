@@ -1,73 +1,171 @@
-# Welcome to your Lovable project
+# 🎓 MLRIT Project Hub - Frontend-Only Setup
 
-## Project info
+A modern project management system for MLRIT students, faculty, and mentors. Now running entirely on frontend with direct Supabase integration!
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## ✨ Architecture
 
-## How can I edit this code?
+```
+Frontend (React + Vite) → Supabase Database
+                       ↗ (Direct connection)
+```
 
-There are several ways of editing your application.
+**No backend server needed!** 🎉
 
-**Use Lovable**
+## 🚀 Quick Start
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
 
-Changes made via Lovable will be committed automatically to this repo.
+### 1. Install Dependencies
+```bash
+cd frontend
+npm install
+```
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### 2. Start Development Server
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at `http://localhost:8081/` (or next available port)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 3. Login
+Use any of these test accounts:
+- **Admin**: admin@mlrit.ac.in / password123
+- **Faculty**: faculty@mlrit.ac.in / password123  
+- **Mentor**: mentor@mlrit.ac.in / password123
+- **Student**: student@mlrit.ac.in / password123
 
-**Use GitHub Codespaces**
+## 🏗️ Project Structure
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+mlrit-project-hub/
+├── .kiro/
+│   └── settings/mcp.json         # Supabase MCP connection
+├── frontend/
+│   ├── .env                      # Supabase credentials
+│   ├── src/
+│   │   ├── lib/supabase.ts      # Supabase client
+│   │   ├── contexts/            # React contexts
+│   │   ├── components/          # UI components
+│   │   ├── pages/               # Route components
+│   │   └── hooks/               # Custom hooks
+│   └── package.json
+└── README.md
+```
 
-## What technologies are used for this project?
+## 🔐 Authentication
 
-This project is built with:
+- **Direct Supabase Integration**: No backend API needed
+- **Role-Based Access**: Admin, Faculty, Mentor, Student roles
+- **Unified Login**: Single login page for all roles
+- **Registration**: Self-service account creation
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🎯 Features
 
-## How can I deploy this project?
+### For Students
+- Project management and tracking
+- Team collaboration tools
+- Mentor communication
+- Progress monitoring
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+### For Faculty  
+- Student oversight
+- Project approval workflows
+- Academic progress tracking
+- Announcement system
 
-## Can I connect a custom domain to my Lovable project?
+### For Mentors
+- Student guidance tools
+- Project review system
+- Progress tracking
+- Communication hub
 
-Yes, you can!
+### For Admins
+- User management
+- System configuration
+- Analytics and reporting
+- Content management
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🛠️ Technology Stack
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- **Frontend**: React 18, TypeScript, Vite
+- **UI**: Tailwind CSS, Radix UI, Lucide Icons
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Custom with Supabase
+- **State Management**: React Context
+- **Routing**: React Router v6
+
+## 📱 Responsive Design
+
+Fully responsive design that works on:
+- 📱 Mobile devices
+- 📱 Tablets  
+- 💻 Desktop computers
+- 🖥️ Large screens
+
+## 🔧 Development
+
+### Available Scripts
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production  
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+```
+
+### Environment Variables
+Create `frontend/.env`:
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+```
+
+## 📊 Database Schema
+
+The system uses 10 main tables:
+- `users` - User accounts and profiles
+- `sections` - Academic sections/classes
+- `teams` - Student project teams
+- `projects` - Project information
+- `announcements` - System announcements
+- `timetable` - Class schedules
+- And more...
+
+## 🚀 Deployment
+
+### Build for Production
+```bash
+cd frontend
+npm run build
+```
+
+### Deploy to Vercel/Netlify
+1. Connect your repository
+2. Set build command: `cd frontend && npm run build`
+3. Set publish directory: `frontend/dist`
+4. Add environment variables
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🆘 Support
+
+For support and questions:
+- Check the troubleshooting guide in `BACKEND_REMOVED.md`
+- Open an issue on GitHub
+- Contact the development team
+
+---
+
+**Ready to use!** Visit http://localhost:8081/ and login with test credentials 🎉

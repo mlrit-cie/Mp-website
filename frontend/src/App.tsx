@@ -4,10 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import AdminLogin from "./pages/AdminLogin";
-import FacultyLogin from "./pages/FacultyLogin";
-import MentorLogin from "./pages/MentorLogin";
-import StudentLogin from "./pages/StudentLogin";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 import Index from "./pages/Index";
 import DashboardLayout from "./layouts/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
@@ -25,7 +23,7 @@ const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/login/student" replace />;
+  if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 };
 
@@ -35,13 +33,17 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Index />} />
-      <Route path="/login" element={<Navigate to="/login/student" replace />} />
-      <Route path="/login/admin" element={user ? <Navigate to="/dashboard" replace /> : <AdminLogin />} />
-      <Route path="/login/faculty" element={user ? <Navigate to="/dashboard" replace /> : <FacultyLogin />} />
-      <Route path="/login/mentor" element={user ? <Navigate to="/dashboard" replace /> : <MentorLogin />} />
-      <Route path="/login/mentors" element={user ? <Navigate to="/dashboard" replace /> : <MentorLogin />} />
-      <Route path="/login/student_mentor" element={user ? <Navigate to="/dashboard" replace /> : <MentorLogin />} />
-      <Route path="/login/student" element={user ? <Navigate to="/dashboard" replace /> : <StudentLogin />} />
+      <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
+      <Route path="/signup" element={user ? <Navigate to="/dashboard" replace /> : <SignUp />} />
+      
+      {/* Legacy login routes - redirect to unified login */}
+      <Route path="/login/admin" element={<Navigate to="/login" replace />} />
+      <Route path="/login/faculty" element={<Navigate to="/login" replace />} />
+      <Route path="/login/mentor" element={<Navigate to="/login" replace />} />
+      <Route path="/login/mentors" element={<Navigate to="/login" replace />} />
+      <Route path="/login/student_mentor" element={<Navigate to="/login" replace />} />
+      <Route path="/login/student" element={<Navigate to="/login" replace />} />
+      
       <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/sections" element={<Sections />} />
@@ -53,22 +55,13 @@ const AppRoutes = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/timetable" element={<Timetable />} />
       </Route>
-      <Route
-        path="/admin"
-        element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login/admin" replace />}
-      />
-      <Route
-        path="/student"
-        element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login/student" replace />}
-      />
-      <Route
-        path="/faculty"
-        element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login/faculty" replace />}
-      />
-      <Route
-        path="/mentor"
-        element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login/mentor" replace />}
-      />
+      
+      {/* Legacy role routes - redirect to unified login */}
+      <Route path="/admin" element={<Navigate to="/login" replace />} />
+      <Route path="/student" element={<Navigate to="/login" replace />} />
+      <Route path="/faculty" element={<Navigate to="/login" replace />} />
+      <Route path="/mentor" element={<Navigate to="/login" replace />} />
+      
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

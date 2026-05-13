@@ -4,12 +4,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Mail, Phone, Building, Hash, Edit, Save, X, Github, Linkedin } from 'lucide-react';
+import { Mail, Phone, Building, Hash, Edit, Save, X, Github, Linkedin, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const Profile: React.FC = () => {
   const { user, updateProfile } = useAuth();
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -45,14 +46,12 @@ const Profile: React.FC = () => {
     setEditing(true);
   };
 
-  const handleSave = () => {
-    updateProfile(form);
+  const handleSave = async () => {
+    setSaving(true);
+    await updateProfile(form);
+    setSaving(false);
     setEditing(false);
-    toast({ title: 'Profile updated', description: 'Your profile has been saved successfully.' });
-  };
-
-  const handleCancel = () => {
-    setEditing(false);
+    toast({ title: 'Profile updated', description: 'Your changes have been saved.' });
   };
 
   return (
@@ -64,11 +63,13 @@ const Profile: React.FC = () => {
 
       <div className="rounded-xl border border-border bg-card p-6">
         <div className="flex items-start gap-5">
+          {/* Avatar */}
           <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl font-bold text-primary font-heading shrink-0">
-            {user.name.charAt(0)}
+            {user.name.charAt(0).toUpperCase()}
           </div>
+
           <div className="flex-1">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <h2 className="text-xl font-heading font-bold">{user.name}</h2>
               <Badge variant={roleBadgeVariant[user.role]}>{roleLabel[user.role]}</Badge>
             </div>
@@ -77,37 +78,35 @@ const Profile: React.FC = () => {
               <>
                 <div className="mt-4 space-y-3 text-sm">
                   <div className="flex items-center gap-3 text-muted-foreground">
-                    <Mail className="w-4 h-4" />
-                    <span>{user.email}</span>
+                    <Mail className="w-4 h-4 shrink-0" /><span>{user.email}</span>
                   </div>
                   {user.phone && (
                     <div className="flex items-center gap-3 text-muted-foreground">
-                      <Phone className="w-4 h-4" />
-                      <span>{user.phone}</span>
+                      <Phone className="w-4 h-4 shrink-0" /><span>{user.phone}</span>
                     </div>
                   )}
                   {user.department && (
                     <div className="flex items-center gap-3 text-muted-foreground">
-                      <Building className="w-4 h-4" />
-                      <span>{user.department}</span>
+                      <Building className="w-4 h-4 shrink-0" /><span>{user.department}</span>
                     </div>
                   )}
                   {user.rollNumber && (
                     <div className="flex items-center gap-3 text-muted-foreground">
-                      <Hash className="w-4 h-4" />
-                      <span>{user.rollNumber}</span>
+                      <Hash className="w-4 h-4 shrink-0" /><span>{user.rollNumber}</span>
                     </div>
                   )}
                   {user.githubLink && (
                     <div className="flex items-center gap-3 text-muted-foreground">
-                      <Github className="w-4 h-4" />
-                      <a href={user.githubLink} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{user.githubLink}</a>
+                      <Github className="w-4 h-4 shrink-0" />
+                      <a href={user.githubLink} target="_blank" rel="noopener noreferrer"
+                        className="hover:text-primary transition-colors truncate">{user.githubLink}</a>
                     </div>
                   )}
                   {user.linkedinLink && (
                     <div className="flex items-center gap-3 text-muted-foreground">
-                      <Linkedin className="w-4 h-4" />
-                      <a href={user.linkedinLink} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{user.linkedinLink}</a>
+                      <Linkedin className="w-4 h-4 shrink-0" />
+                      <a href={user.linkedinLink} target="_blank" rel="noopener noreferrer"
+                        className="hover:text-primary transition-colors truncate">{user.linkedinLink}</a>
                     </div>
                   )}
                 </div>
@@ -118,30 +117,31 @@ const Profile: React.FC = () => {
             ) : (
               <div className="mt-4 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input id="name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+                  <Label htmlFor="p-name">Name</Label>
+                  <Input id="p-name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+                  <Label htmlFor="p-email">Email</Label>
+                  <Input id="p-email" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+                  <Label htmlFor="p-phone">Phone</Label>
+                  <Input id="p-phone" placeholder="+91 9876543210" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="github">GitHub Link</Label>
-                  <Input id="github" value={form.githubLink} onChange={e => setForm({ ...form, githubLink: e.target.value })} placeholder="https://github.com/username" />
+                  <Label htmlFor="p-github">GitHub</Label>
+                  <Input id="p-github" placeholder="https://github.com/username" value={form.githubLink} onChange={e => setForm(f => ({ ...f, githubLink: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="linkedin">LinkedIn Link</Label>
-                  <Input id="linkedin" value={form.linkedinLink} onChange={e => setForm({ ...form, linkedinLink: e.target.value })} placeholder="https://linkedin.com/in/username" />
+                  <Label htmlFor="p-linkedin">LinkedIn</Label>
+                  <Input id="p-linkedin" placeholder="https://linkedin.com/in/username" value={form.linkedinLink} onChange={e => setForm(f => ({ ...f, linkedinLink: e.target.value }))} />
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={handleSave}>
-                    <Save className="w-3.5 h-3.5 mr-2" /> Save
+                  <Button size="sm" onClick={handleSave} disabled={saving}>
+                    {saving ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" /> : <Save className="w-3.5 h-3.5 mr-2" />}
+                    Save
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleCancel}>
+                  <Button variant="outline" size="sm" onClick={() => setEditing(false)} disabled={saving}>
                     <X className="w-3.5 h-3.5 mr-2" /> Cancel
                   </Button>
                 </div>

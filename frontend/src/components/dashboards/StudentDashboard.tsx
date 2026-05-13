@@ -1,90 +1,118 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import StatCard from '@/components/StatCard';
 import StatusBadge from '@/components/StatusBadge';
-import { mockProjects, mockTeams } from '@/lib/mock-data';
 import { useAuth } from '@/contexts/AuthContext';
-import { FolderKanban, FileCheck, Clock, Crown, Phone, Mail, Github, Linkedin } from 'lucide-react';
+import { useProjects } from '@/hooks/useProjects';
+import { FolderKanban, FileCheck, Clock, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
-  const myTeam = mockTeams.find(t => t.members.some(m => m.id === user?.id));
-  const myProject = mockProjects.find(p => p.id === myTeam?.projectId);
-  const lead = myTeam?.members.find(m => m.id === myTeam.leadId);
+  const { projects, loading, fetchProjects } = useProjects();
+
+  useEffect(() => { fetchProjects(); }, []);
+
+  const project = projects[0] || null;
+
+  const checklist = project ? [
+    { label: 'Title & Domain', done: !!project.title && !!project.domain && project.domain !== 'Pending Selection' },
+    { label: 'Abstract', done: !!project.abstract },
+    { label: 'GitHub Link', done: !!project.github_link },
+    { label: 'Video Link', done: !!project.video_link },
+  ] : [];
+
+  const completedItems = checklist.filter(c => c.done).length;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in">
       <div>
         <h1 className="text-2xl font-heading font-bold">Team Portal</h1>
         <p className="text-muted-foreground text-sm mt-1">Welcome back, {user?.name}</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="My Team" value={myTeam?.name || 'N/A'} icon={<FolderKanban className="w-5 h-5" />} variant="green" />
-        <StatCard title="Team Size" value={myTeam?.members.length || 0} icon={<FolderKanban className="w-5 h-5" />} variant="blue" />
-        <StatCard title="Project Status" value={myProject?.status || 'N/A'} icon={<FileCheck className="w-5 h-5" />} variant="green" />
-        <StatCard title="Deadline" value="Jan 15" subtitle="CIE Submission" icon={<Clock className="w-5 h-5" />} variant="red" />
+        <StatCard
+          title="Project Status"
+          value={project?.status || 'No Project'}
+          icon={<FolderKanban className="w-5 h-5" />}
+          variant="green"
+        />
+        <StatCard
+          title="Team"
+          value={project?.team_name || '—'}
+          icon={<FileCheck className="w-5 h-5" />}
+          variant="blue"
+        />
+        <StatCard
+          title="Checklist"
+          value={`${completedItems} / ${checklist.length}`}
+          icon={<Clock className="w-5 h-5" />}
+          variant={completedItems === checklist.length && checklist.length > 0 ? 'green' : 'red'}
+        />
+        <StatCard
+          title="Section"
+          value={project?.section_name || '—'}
+          icon={<FileCheck className="w-5 h-5" />}
+          variant="green"
+        />
       </div>
 
-      {myTeam && (
-        <div className="rounded-xl border border-border bg-card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-heading font-semibold">My Team — {myTeam.name}</h3>
-            {lead && <span className="text-xs text-muted-foreground">Lead: {lead.name}</span>}
-          </div>
-          <div className="space-y-3">
-            {myTeam.members.map(m => (
-              <div key={m.id} className="p-3 rounded-lg border border-border/50 bg-muted/20">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
-                    {m.name.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-sm">{m.name}</p>
-                      {m.id === myTeam.leadId && <Crown className="w-3.5 h-3.5 text-yellow-500" />}
-                    </div>
-                    {m.rollNumber && <p className="text-xs text-muted-foreground">{m.rollNumber}</p>}
-                  </div>
-                </div>
-                <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                  {m.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {m.phone}</span>}
-                  {m.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {m.email}</span>}
-                  {m.githubLink && <a href={m.githubLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-primary"><Github className="w-3 h-3" /> GitHub</a>}
-                  {m.linkedinLink && <a href={m.linkedinLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-primary"><Linkedin className="w-3 h-3" /> LinkedIn</a>}
-                </div>
+      {loading && (
+        <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+          Loading your project data...
+        </div>
+      )}
+
+      {!loading && project && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Project card */}
+          <div className="rounded-xl border border-border bg-card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-heading font-semibold">My Project</h3>
+              <StatusBadge status={project.status} />
+            </div>
+            <h4 className="text-lg font-medium">{project.title || 'Untitled Project'}</h4>
+            <p className="text-sm text-muted-foreground mt-1">Domain: {project.domain || '—'}</p>
+            {project.abstract && (
+              <p className="mt-3 text-sm text-muted-foreground line-clamp-3">{project.abstract}</p>
+            )}
+            {project.feedback && (
+              <div className="mt-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20">
+                <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-1">Mentor Feedback</p>
+                <p className="text-sm">{project.feedback}</p>
               </div>
-            ))}
+            )}
+            <Link to="/projects" className="mt-4 flex items-center gap-1 text-sm text-primary hover:underline">
+              View full project <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Submission checklist */}
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h3 className="font-heading font-semibold mb-4">Submission Checklist</h3>
+            <div className="space-y-3">
+              {checklist.map(item => (
+                <div key={item.label} className="flex items-center gap-3">
+                  <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${item.done ? 'bg-green-500 border-green-500' : 'border-border'}`} />
+                  <span className={`text-sm ${item.done ? 'text-foreground' : 'text-muted-foreground'}`}>{item.label}</span>
+                  {item.done && <span className="ml-auto text-xs text-green-600 font-medium">Done</span>}
+                </div>
+              ))}
+            </div>
+            {completedItems < checklist.length && (
+              <Link to="/projects" className="mt-5 block w-full text-center py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
+                Complete Submission
+              </Link>
+            )}
           </div>
         </div>
       )}
 
-      {myProject && (
-        <div className="rounded-xl border border-border bg-card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-heading font-semibold">My Project</h3>
-            <StatusBadge status={myProject.status} />
-          </div>
-          <h4 className="text-lg font-medium">{myProject.title}</h4>
-          <p className="text-sm text-muted-foreground mt-1">Domain: {myProject.domain}</p>
-
-          <div className="mt-4 p-4 rounded-lg bg-muted/30 border border-border/50">
-            <p className="text-xs text-muted-foreground font-medium mb-2">Submission Checklist</p>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              {[
-                { label: 'Abstract', done: !!myProject.abstract },
-                { label: 'PPT', done: !!myProject.pptFile },
-                { label: 'Project Report', done: !!myProject.reportFile },
-                { label: 'Yukthi File', done: !!myProject.yukthiFile },
-                { label: 'GitHub Link', done: !!myProject.githubLink },
-                { label: 'Video Link', done: !!myProject.videoLink },
-              ].map(item => (
-                <div key={item.label} className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full border-2 ${item.done ? 'bg-primary border-primary' : 'border-border'}`} />
-                  <span className={item.done ? 'text-foreground' : 'text-muted-foreground'}>{item.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+      {!loading && !project && (
+        <div className="rounded-xl border border-border bg-card p-8 text-center">
+          <FolderKanban className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+          <p className="font-medium text-sm">No project assigned yet</p>
+          <p className="text-xs text-muted-foreground mt-1">Your mentor will create a team and assign you to a project.</p>
         </div>
       )}
     </div>

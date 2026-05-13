@@ -23,13 +23,17 @@ const FacultyLogin = () => {
       return;
     }
     setIsLoading(true);
-    await new Promise(r => setTimeout(r, 600));
-    const success = login(email, password);
-    setIsLoading(false);
-    if (success) {
-      navigate('/dashboard');
-    } else {
-      setError('Invalid credentials');
+    try {
+      const success = await login(email, password);
+      if (success) {
+        navigate('/dashboard');
+      } else {
+        setError('Invalid credentials. Please check your email and password.');
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -54,7 +58,7 @@ const FacultyLogin = () => {
               <BookOpen className="w-7 h-7 text-white" />
             </div>
             <div>
-              <span className="text-xl font-heading font-bold text-white">CIE MLRIT Project Hub</span>
+              <span className="text-xl font-heading font-bold text-white">ProjectSphere</span>
               <p className="text-blue-200/70 text-xs">Faculty Portal</p>
             </div>
           </div>
