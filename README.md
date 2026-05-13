@@ -153,13 +153,3 @@ npm run build
 
 This project is licensed under the MIT License.
 
-## 🆘 Support
-
-For support and questions:
-- Check the troubleshooting guide in `BACKEND_REMOVED.md`
-- Open an issue on GitHub
-- Contact the development team
-
----
-
-**Ready to use!** Visit http://localhost:8081/ and login with test credentials 🎉
