@@ -12,12 +12,6 @@ import { Plus, Mail, BookOpen, Users, Trash2, Pencil, AlertTriangle, FileUp, Loa
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
-/* ─── helpers ─── */
-const hashPassword = async (pw: string) => {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-};
-
 /* ─── Mentor Card ─── */
 const MentorCard: React.FC<{
   mentor: User; badgeVariant: 'faculty' | 'mentor'; badgeLabel: string;
@@ -106,16 +100,23 @@ const Mentors: React.FC = () => {
       setFormError('Name, email, and department are required.'); return;
     }
     setSaving(true);
-    const pw = await hashPassword('password123');
+    // Auth lives in Supabase Auth; this just creates the profile row. The mentor
+    // activates their account by registering at /signup with this same email — the
+    // handle_new_auth_user trigger links auth.uid() back to this row automatically.
     const { error } = await supabase.from('users').insert([{
-      name: formData.name.trim(), email: formData.email.trim(),
-      password: pw, role: mentorType,
+      name: formData.name.trim(),
+      email: formData.email.trim().toLowerCase(),
+      role: mentorType,
+      approved: true,  // admin-created mentors are implicitly approved
       department: formData.department.trim(),
       roll_number: mentorType === 'student_mentor' ? formData.rollNumber.trim() || null : null,
     }]);
     setSaving(false);
     if (error) { setFormError(error.message); return; }
-    toast({ title: 'Mentor added successfully' });
+    toast({
+      title: 'Mentor profile created',
+      description: 'They can now register at /signup with this email to activate the account.',
+    });
     await loadMentors();
     closeDialog();
   };
@@ -162,13 +163,15 @@ const Mentors: React.FC = () => {
   const handleImport = async () => {
     if (!importData.trim()) return;
     const lines = importData.trim().split('\n');
-    const pw = await hashPassword('password123');
     const rows = lines.map(line => {
       const [name, email, department, role, roll] = line.split(',').map(s => s.trim());
       if (!name || !email) return null;
       return {
-        name, email, password: pw, department: department || 'CSE',
+        name,
+        email: email.toLowerCase(),
+        department: department || 'CSE',
         role: role?.toLowerCase().includes('faculty') ? 'faculty' : 'student_mentor',
+        approved: true,  // admin imported them, treat as pre-approved
         roll_number: roll || null,
       };
     }).filter(Boolean);
@@ -176,7 +179,10 @@ const Mentors: React.FC = () => {
     if (rows.length === 0) return;
     const { error } = await supabase.from('users').insert(rows as any[]);
     if (error) { toast({ title: 'Import failed', description: error.message, variant: 'destructive' }); return; }
-    toast({ title: `Imported ${rows.length} mentor(s)` });
+    toast({
+      title: `Imported ${rows.length} mentor profile(s)`,
+      description: 'They activate by registering at /signup with these emails.',
+    });
     await loadMentors();
     setImportData(''); setDialogMode(null);
   };

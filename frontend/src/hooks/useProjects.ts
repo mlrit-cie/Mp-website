@@ -17,7 +17,8 @@ export const useProjects = () => {
         .from('projects')
         .select(`
           id, title, domain, abstract, github_link, video_link,
-          feedback, status, updated_at, section_id, team_id,
+          ppt_file, report_file, yukthi_file, feedback, deadline,
+          status, updated_at, section_id, team_id,
           teams!inner(id, name, section_id,
             sections(id, name, department)
           )
@@ -55,7 +56,11 @@ export const useProjects = () => {
           abstract: p.abstract,
           github_link: p.github_link,
           video_link: p.video_link,
+          ppt_file: p.ppt_file,
+          report_file: p.report_file,
+          yukthi_file: p.yukthi_file,
           feedback: p.feedback,
+          deadline: p.deadline,
           status: p.status,
           updated_at: p.updated_at,
           team_id: String(p.team_id),

@@ -7,8 +7,10 @@ import { Label } from '@/components/ui/label';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
 } from '@/components/ui/dialog';
-import { Plus, Users, UserCheck, Pencil, Trash2, AlertTriangle, Search, Mail, BookOpen } from 'lucide-react';
+import { Plus, Users, UserCheck, Pencil, Trash2, AlertTriangle, Search, Mail, BookOpen, Download } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { exportToExcel } from '@/lib/export';
+import { toast } from '@/hooks/use-toast';
 
 type DialogMode = 'add' | 'edit' | 'remove' | null;
 
@@ -76,8 +78,8 @@ const Sections: React.FC = () => {
       setFormError('A faculty mentor must be assigned.');
       return;
     }
-    if (selectedStudentMentors.length < 3) {
-      setFormError('A section must have exactly 1 faculty mentor and at least 3 student mentors.');
+    if (selectedStudentMentors.length < 3 || selectedStudentMentors.length > 4) {
+      setFormError('A section must have exactly 1 faculty mentor and 3 or 4 student mentors.');
       return;
     }
 
@@ -301,35 +303,53 @@ const Sections: React.FC = () => {
       {/* Student Mentors picker */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Label className="text-sm font-semibold">Student Mentors (min 3, max 4)</Label>
+          <Label className="text-sm font-semibold">
+            Student Mentors
+            <span className={`ml-2 text-xs font-normal ${
+              selectedStudentMentors.length >= 3 && selectedStudentMentors.length <= 4
+                ? 'text-emerald-600'
+                : 'text-muted-foreground'
+            }`}>
+              {selectedStudentMentors.length} / 3-4 selected
+            </span>
+          </Label>
           <div className="relative w-48">
             <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
             <Input
-              placeholder="Search mentors..."
+              placeholder="Search by name…"
               className="pl-8 h-8 text-xs"
               value={studentMentorSearch}
               onChange={e => setStudentMentorSearch(e.target.value)}
             />
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto p-1 border rounded-md bg-muted/5">
           {studentMentorList
-            .filter(m => m.name.toLowerCase().includes(studentMentorSearch.toLowerCase()))
+            .filter(m => {
+              const q = studentMentorSearch.toLowerCase();
+              return !q
+                || m.name.toLowerCase().includes(q)
+                || (m.email || '').toLowerCase().includes(q)
+                || (m.rollNumber || '').toLowerCase().includes(q)
+                || (m.department || '').toLowerCase().includes(q);
+            })
             .map(m => {
               const isAssigned = sections.some(s => s.id !== editingId && s.studentMentors.some(sm => sm.id === m.id));
               const isSelected = selectedStudentMentors.includes(m.id);
-              
+              const capReached = !isSelected && selectedStudentMentors.length >= 4;
+
               return (
                 <div key={m.id} className="flex items-center gap-2">
                   <button
                     type="button"
-                    disabled={isAssigned && !isSelected}
+                    disabled={(isAssigned && !isSelected) || capReached}
                     onClick={() => toggleStudentMentor(m.id)}
+                    title={capReached ? 'Maximum 4 student mentors reached' : undefined}
                     className={`flex-1 flex items-center justify-between px-3 py-2 rounded-lg border text-xs font-medium transition-all ${
                       isSelected
                         ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-300 text-emerald-700'
-                        : isAssigned 
+                        : (isAssigned || capReached)
                           ? 'opacity-50 cursor-not-allowed bg-muted border-transparent'
                           : 'border-transparent hover:bg-muted'
                     }`}
@@ -339,6 +359,7 @@ const Sections: React.FC = () => {
                       <span className="text-[10px] text-muted-foreground">{m.rollNumber} • {m.department}</span>
                     </div>
                     {isAssigned && !isSelected && <Badge variant="outline" className="text-[9px] h-4">Assigned</Badge>}
+                    {capReached && !isAssigned && <Badge variant="outline" className="text-[9px] h-4">Cap reached</Badge>}
                   </button>
                 </div>
               );
@@ -360,11 +381,34 @@ const Sections: React.FC = () => {
             {isAdmin ? 'Manage sections and mentor assignments' : 'Your assigned sections'}
           </p>
         </div>
-        {isAdmin && (
-          <Button onClick={openAdd}>
-            <Plus className="w-4 h-4 mr-2" /> Add Section
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {isAdmin && sections.length > 0 && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                const rows = sections.map(s => ({
+                  ID: s.id,
+                  Name: s.name,
+                  Department: s.department,
+                  'Academic Year': s.academicYear,
+                  Semester: s.semester,
+                  Students: s.studentCount,
+                  'Faculty Mentor': s.facultyMentor?.name || '',
+                  'Student Mentors': s.studentMentors.map(m => m.name).join('; '),
+                }));
+                exportToExcel(rows, `sections_${new Date().toISOString().slice(0, 10)}`, 'Sections');
+                toast({ title: 'Sections exported' });
+              }}
+            >
+              <Download className="w-4 h-4 mr-2" /> Export Excel
+            </Button>
+          )}
+          {isAdmin && (
+            <Button onClick={openAdd}>
+              <Plus className="w-4 h-4 mr-2" /> Add Section
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* ═══════ Add / Edit Dialog ═══════ */}

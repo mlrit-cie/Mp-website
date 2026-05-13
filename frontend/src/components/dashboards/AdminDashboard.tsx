@@ -1,10 +1,16 @@
 import React from 'react';
 import StatCard from '@/components/StatCard';
-import { Users, Layers, FileCheck, Megaphone, Loader2 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Users, Layers, FileCheck, Megaphone, Loader2, AlertTriangle, Sparkles, Activity } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from 'recharts';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAnnouncements } from '@/hooks/useAnnouncements';
 import { ProjectStatus } from '@/lib/types';
+
+const DOMAIN_COLORS = [
+  'hsl(215, 80%, 55%)', 'hsl(145, 63%, 45%)', 'hsl(280, 60%, 55%)', 'hsl(38, 92%, 55%)',
+  'hsl(0, 75%, 55%)',   'hsl(190, 80%, 45%)', 'hsl(330, 70%, 55%)', 'hsl(50, 90%, 50%)',
+  'hsl(160, 50%, 45%)', 'hsl(20, 80%, 55%)',
+];
 
 const statusColors: Record<ProjectStatus, string> = {
   'Draft': 'hsl(0, 0%, 60%)',
@@ -16,7 +22,7 @@ const statusColors: Record<ProjectStatus, string> = {
 };
 
 const AdminDashboard: React.FC = () => {
-  const { stats, sectionProjectData, loading } = useAdmin();
+  const { stats, sectionProjectData, domainPopularity, mentorWorkload, loading } = useAdmin();
   const { announcements, loading: annLoading } = useAnnouncements();
 
   if (loading) return (
@@ -32,11 +38,12 @@ const AdminDashboard: React.FC = () => {
         <p className="text-muted-foreground text-sm mt-1">System Overview & Management</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard title="Total Students" value={stats?.studentCount ?? 0} subtitle="Enrolled" icon={<Users className="w-5 h-5" />} variant="blue" />
         <StatCard title="Sections" value={stats?.sectionCount ?? 0} subtitle="Active" icon={<Layers className="w-5 h-5" />} variant="green" />
         <StatCard title="Projects" value={stats?.projectCount ?? 0} subtitle="Current Year" icon={<FileCheck className="w-5 h-5" />} variant="green" />
         <StatCard title="Mentors" value={stats?.mentorCount ?? 0} subtitle="Faculty & Student" icon={<Users className="w-5 h-5" />} variant="red" />
+        <StatCard title="Pending Approvals" value={stats?.pendingApprovals ?? 0} subtitle="Awaiting review" icon={<AlertTriangle className="w-5 h-5" />} variant="red" />
       </div>
 
       {/* Section-wise project status chart */}
@@ -57,6 +64,62 @@ const AdminDashboard: React.FC = () => {
         ) : (
           <p className="text-sm text-muted-foreground text-center py-8">No project data yet</p>
         )}
+      </div>
+
+      {/* Domain popularity + Mentor workload */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Domain popularity */}
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <h3 className="font-heading font-semibold">Domain Popularity</h3>
+          </div>
+          {domainPopularity.length > 0 ? (
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={domainPopularity}
+                  dataKey="count"
+                  nameKey="domain"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={90}
+                  innerRadius={45}
+                  label={(e: any) => `${e.domain} (${e.count})`}
+                  labelLine={false}
+                >
+                  {domainPopularity.map((_, i) => (
+                    <Cell key={i} fill={DOMAIN_COLORS[i % DOMAIN_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-8">No project domains yet</p>
+          )}
+        </div>
+
+        {/* Mentor workload */}
+        <div className="rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Activity className="w-4 h-4 text-primary" />
+            <h3 className="font-heading font-semibold">Mentor Workload</h3>
+            <span className="ml-auto text-[10px] text-muted-foreground">top 10</span>
+          </div>
+          {mentorWorkload.length > 0 ? (
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={mentorWorkload} layout="vertical" margin={{ left: 12 }}>
+                <XAxis type="number" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <YAxis dataKey="mentor" type="category" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} width={110} />
+                <Tooltip />
+                <Bar dataKey="projects" fill="hsl(215, 80%, 55%)" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-8">No assigned projects yet</p>
+          )}
+        </div>
       </div>
 
       {/* Recent announcements */}

@@ -1,4 +1,4 @@
-import { User, Section, Team, Project, Announcement, UserRole, TimetableEntry } from './types';
+import { User, Section, Team, Project, Announcement, UserRole } from './types';
 
 export const mockUsers: User[] = [
   { id: '1', name: 'Dr. Rajesh Kumar', email: 'rajesh@mlrit.ac.in', role: 'admin', department: 'CSE' },
@@ -47,19 +47,6 @@ export const mockProjects: Project[] = [
 export const mockAnnouncements: Announcement[] = [
   { id: 'a1', title: 'CIE Submission Deadline Extended', content: 'The deadline for CIE submission has been extended to January 15, 2025.', author: 'Dr. Rajesh Kumar', createdAt: '2024-12-15', targetAudience: 'all' },
   { id: 'a2', title: 'Mentor Meeting This Friday', content: 'All mentors are requested to attend the weekly review meeting on Friday at 3 PM.', author: 'Dr. Rajesh Kumar', createdAt: '2024-12-12', targetAudience: 'all' },
-];
-
-export const mockTimetable: TimetableEntry[] = [
-  { 
-    id: 'tt1', day: 'Monday', startTime: '10:20', endTime: '12:20', 
-    dept: 'CSE', sectionName: 'Section A', 
-    facultyMentorId: '2', studentMentorIds: ['4', '5', '6'], room: 'LHC-101' 
-  },
-  { 
-    id: 'tt2', day: 'Tuesday', startTime: '10:20', endTime: '12:20', 
-    dept: 'ECE', sectionName: 'Section B', 
-    facultyMentorId: '3', studentMentorIds: ['7', '8', '9'], room: 'LHC-203' 
-  },
 ];
 
 export const domainStats = [

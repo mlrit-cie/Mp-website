@@ -5,6 +5,7 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  approved?: boolean;
   rollNumber?: string;
   department?: string;
   phone?: string;
@@ -82,16 +83,4 @@ export interface Announcement {
 }
 
 export type DayOfWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday';
-
-export interface TimetableEntry {
-  id: string;
-  day: DayOfWeek;
-  startTime: string; // e.g., "10:20"
-  endTime: string;   // e.g., "12:20"
-  dept: string;
-  sectionName: string;
-  facultyMentorId: string;
-  studentMentorIds: string[];
-  room: string;
-}
 

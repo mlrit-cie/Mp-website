@@ -1,16 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Mail, Phone, Building, Hash, Edit, Save, X, Github, Linkedin, Loader2 } from 'lucide-react';
+import {
+  Mail, Phone, Building, Hash, Edit, Save, X, Github, Linkedin, Loader2,
+  Layers, FolderKanban, ClipboardCheck,
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import PendingApprovalsPanel from '@/components/PendingApprovalsPanel';
+
+interface MentorSummary {
+  sections: { id: number; name: string; department: string | null }[];
+  teamCount: number;
+  pendingReviews: number;
+  reviewStatusLabel: string;
+}
 
 const Profile: React.FC = () => {
   const { user, updateProfile } = useAuth();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [mentorSummary, setMentorSummary] = useState<MentorSummary | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
   const [form, setForm] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -18,6 +33,51 @@ const Profile: React.FC = () => {
     githubLink: user?.githubLink || '',
     linkedinLink: user?.linkedinLink || '',
   });
+
+  const isMentor = user?.role === 'faculty' || user?.role === 'student_mentor';
+  const isAdmin  = user?.role === 'admin';
+
+  useEffect(() => {
+    if (!user || !isMentor) { setMentorSummary(null); return; }
+    let cancelled = false;
+    (async () => {
+      setSummaryLoading(true);
+      try {
+        const { data: assignments } = await supabase
+          .from('mentor_assignments')
+          .select('section_id, sections!inner(id, name, department)')
+          .eq('user_id', Number(user.id));
+
+        const sections = ((assignments || []) as any[])
+          .map(a => a.sections)
+          .filter(Boolean);
+
+        const sectionIds = sections.map(s => s.id);
+        const reviewStatus = user.role === 'faculty' ? 'Faculty Review' : 'Student Mentor Review';
+
+        let teamCount = 0;
+        let pendingReviews = 0;
+        if (sectionIds.length > 0) {
+          const [teams, reviews] = await Promise.all([
+            supabase.from('teams').select('id', { count: 'exact', head: true }).in('section_id', sectionIds),
+            supabase.from('projects').select('id', { count: 'exact', head: true })
+              .in('section_id', sectionIds).eq('status', reviewStatus),
+          ]);
+          teamCount = teams.count ?? 0;
+          pendingReviews = reviews.count ?? 0;
+        }
+
+        if (!cancelled) {
+          setMentorSummary({
+            sections, teamCount, pendingReviews, reviewStatusLabel: reviewStatus,
+          });
+        }
+      } finally {
+        if (!cancelled) setSummaryLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [user, isMentor]);
 
   if (!user) return null;
 
@@ -55,10 +115,12 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="max-w-3xl space-y-6">
       <div>
         <h1 className="text-2xl font-heading font-bold">Profile</h1>
-        <p className="text-muted-foreground text-sm mt-1">Your account information</p>
+        <p className="text-muted-foreground text-sm mt-1">
+          {isMentor ? 'Your account, assigned sections, and pending workload' : 'Your account information'}
+        </p>
       </div>
 
       <div className="rounded-xl border border-border bg-card p-6">
@@ -150,6 +212,82 @@ const Profile: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Admin-only: pending approvals (also surfaced on the dashboard) */}
+      {isAdmin && <PendingApprovalsPanel variant="amber" />}
+
+      {/* Mentor-only: assigned workload */}
+      {isMentor && (
+        <div className="rounded-xl border border-border bg-card p-6 space-y-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-heading font-semibold">Mentor Workload</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Sections assigned to you and what's pending</p>
+            </div>
+            {summaryLoading && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
+          </div>
+
+          {/* Quick stats */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-lg border border-border bg-muted/30 p-4">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Layers className="w-3.5 h-3.5" /> Sections
+              </div>
+              <p className="text-2xl font-bold mt-1">{mentorSummary?.sections.length ?? 0}</p>
+            </div>
+            <div className="rounded-lg border border-border bg-muted/30 p-4">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <FolderKanban className="w-3.5 h-3.5" /> Teams
+              </div>
+              <p className="text-2xl font-bold mt-1">{mentorSummary?.teamCount ?? 0}</p>
+            </div>
+            <div className={`rounded-lg border p-4 ${
+              (mentorSummary?.pendingReviews ?? 0) > 0
+                ? 'border-destructive/40 bg-destructive/5'
+                : 'border-border bg-muted/30'
+            }`}>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <ClipboardCheck className="w-3.5 h-3.5" /> Pending Reviews
+              </div>
+              <p className="text-2xl font-bold mt-1">{mentorSummary?.pendingReviews ?? 0}</p>
+              {mentorSummary && (
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {mentorSummary.reviewStatusLabel}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Assigned section list */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium">Assigned Sections</p>
+              <Link to="/sections" className="text-xs text-primary hover:underline">View all sections</Link>
+            </div>
+            {(mentorSummary?.sections.length ?? 0) === 0 ? (
+              <p className="text-xs text-muted-foreground italic py-4 text-center bg-muted/20 rounded-lg border border-dashed border-border">
+                No sections assigned to you yet. Ask an admin to add you to a section.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {mentorSummary!.sections.map(s => (
+                  <div key={s.id} className="p-3 rounded-lg border border-border bg-muted/20 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                      <Layers className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{s.name}</p>
+                      {s.department && (
+                        <p className="text-[10px] text-muted-foreground">{s.department}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

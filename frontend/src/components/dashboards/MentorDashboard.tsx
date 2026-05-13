@@ -3,14 +3,39 @@ import StatCard from '@/components/StatCard';
 import StatusBadge from '@/components/StatusBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { FolderKanban, FileCheck, Clock, Users, Calendar } from 'lucide-react';
+import { FolderKanban, FileCheck, Clock, Users, Calendar, Layers, Megaphone, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useMentor } from '@/hooks/useMentor';
+import { useAnnouncements } from '@/hooks/useAnnouncements';
 
 const MentorDashboard: React.FC = () => {
   const { user } = useAuth();
   const { assignedSections, currentSectionTeams, loading, fetchSectionData } = useMentor();
+  const { announcements } = useAnnouncements();
   const [todaysClasses, setTodaysClasses] = useState<any[]>([]);
+  const [recentUpdates, setRecentUpdates] = useState<any[]>([]);
+
+  // Recent project updates within the past 7 days (teams in any assigned section)
+  useEffect(() => {
+    if (assignedSections.length === 0) { setRecentUpdates([]); return; }
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const sectionIds = assignedSections.map(s => Number(s.id));
+    supabase
+      .from('projects')
+      .select('id, title, status, updated_at, team_id, teams!inner(name, section_id)')
+      .gte('updated_at', sevenDaysAgo)
+      .in('teams.section_id', sectionIds)
+      .order('updated_at', { ascending: false })
+      .limit(8)
+      .then(({ data }) => {
+        setRecentUpdates(
+          (data || []).map((p: any) => ({
+            id: p.id, title: p.title || 'Untitled', status: p.status,
+            teamName: p.teams?.name || '—', updatedAt: p.updated_at,
+          }))
+        );
+      });
+  }, [assignedSections]);
 
   useEffect(() => {
     if (assignedSections.length > 0) fetchSectionData(assignedSections[0].id);
@@ -51,6 +76,72 @@ const MentorDashboard: React.FC = () => {
             <StatCard title="Assigned Sections" value={assignedSections.length} icon={<Users className="w-5 h-5" />} variant="blue" />
             <StatCard title="Pending Reviews" value={pendingReviews} icon={<Clock className="w-5 h-5" />} variant="red" />
             <StatCard title="Section" value={assignedSections[0]?.name || '—'} icon={<FileCheck className="w-5 h-5" />} variant="green" />
+          </div>
+
+          {/* Assigned sections list */}
+          <div className="rounded-xl border border-border bg-card p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Layers className="w-4 h-4 text-primary" />
+              <h3 className="font-heading font-semibold">My Sections</h3>
+            </div>
+            {assignedSections.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {assignedSections.map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => fetchSectionData(s.id)}
+                    className="text-left p-3 rounded-lg border border-border bg-muted/20 hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                  >
+                    <p className="font-medium text-sm">{s.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {s.department}{s.academicYear ? ` • ${s.academicYear}` : ''}
+                      {typeof s.studentCount === 'number' ? ` • ${s.studentCount} students` : ''}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-6">No sections assigned to you yet</p>
+            )}
+          </div>
+
+          {/* Weekly updates: recent project changes + recent announcements */}
+          <div className="rounded-xl border border-border bg-card p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <Activity className="w-4 h-4 text-primary" />
+              <h3 className="font-heading font-semibold">This Week</h3>
+              <span className="ml-auto text-[10px] text-muted-foreground">past 7 days</span>
+            </div>
+            {recentUpdates.length === 0 && announcements.slice(0, 3).length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">No updates this week</p>
+            ) : (
+              <div className="space-y-3">
+                {recentUpdates.map(u => (
+                  <div key={`proj-${u.id}`} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/40">
+                    <FolderKanban className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium truncate">{u.title}</p>
+                        <StatusBadge status={u.status} />
+                      </div>
+                      <p className="text-xs text-muted-foreground">{u.teamName} • {new Date(u.updatedAt).toLocaleDateString('en-GB')}</p>
+                    </div>
+                  </div>
+                ))}
+                {announcements.slice(0, 3).map(a => (
+                  <div key={`ann-${a.id}`} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/40">
+                    <Megaphone className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate">{a.title}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-1">{a.content}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        {new Date(a.created_at).toLocaleDateString('en-GB')} — {a.author}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="rounded-xl border border-border bg-card p-5">

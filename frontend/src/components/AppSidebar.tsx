@@ -3,9 +3,10 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   LayoutDashboard, Users, Layers, FolderKanban, FileCheck,
-  Megaphone, Archive, UserCircle, LogOut, GraduationCap, ChevronLeft, ChevronRight, Calendar
+  Megaphone, Archive, UserCircle, LogOut, GraduationCap, ChevronLeft, ChevronRight, Calendar, ClipboardCheck, ClipboardList
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import NotificationsBell from './NotificationsBell';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -16,8 +17,8 @@ const AppSidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
 
@@ -40,6 +41,8 @@ const AppSidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
     { to: '/sections', icon: Layers, label: 'Sections', roles: ['admin', 'faculty', 'student_mentor'] },
     { to: '/timetable', icon: Calendar, label: 'Time Table', roles: ['admin', 'faculty', 'student_mentor'] },
     { to: '/mentors', icon: Users, label: 'Mentors', roles: ['admin'] },
+    { to: '/attendance', icon: ClipboardCheck, label: 'Attendance', roles: ['admin'] },
+    { to: '/weekly-updates', icon: ClipboardList, label: 'Weekly Updates', roles: ['admin', 'faculty', 'student_mentor'] },
     { to: '/teams', icon: FolderKanban, label: 'My Team', studentLabel: true, roles: ['admin', 'faculty', 'student_mentor', 'student'] },
     { to: '/projects', icon: FileCheck, label: 'My Project', studentLabel: true, roles: ['admin', 'faculty', 'student_mentor', 'student'] },
     { to: '/announcements', icon: Megaphone, label: 'Announcements', roles: ['admin', 'faculty', 'student_mentor', 'student'] },
@@ -79,12 +82,20 @@ const AppSidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
 
       {/* User info */}
       {!collapsed && user && (
-        <div className="px-4 py-3 border-b border-sidebar-border">
-          <p className="text-sm font-medium text-sidebar-foreground truncate">{user.name}</p>
-          <div className="flex items-center gap-1.5 mt-1">
-            <span className={cn("w-2 h-2 rounded-full", roleColor[user.role])} />
-            <span className="text-[11px] text-sidebar-muted">{roleLabel[user.role]}</span>
+        <div className="px-4 py-3 border-b border-sidebar-border flex items-center gap-2">
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-sidebar-foreground truncate">{user.name}</p>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className={cn("w-2 h-2 rounded-full", roleColor[user.role])} />
+              <span className="text-[11px] text-sidebar-muted">{roleLabel[user.role]}</span>
+            </div>
           </div>
+          <NotificationsBell />
+        </div>
+      )}
+      {collapsed && user && (
+        <div className="px-2 py-3 border-b border-sidebar-border flex justify-center">
+          <NotificationsBell />
         </div>
       )}
 

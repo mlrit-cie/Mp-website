@@ -8,6 +8,8 @@ import { Download, Github, Video, Save, ChevronRight, Loader2 } from 'lucide-rea
 import { useAuth } from '@/contexts/AuthContext';
 import { useProjects } from '@/hooks/useProjects';
 import { toast } from '@/hooks/use-toast';
+import FileUpload from '@/components/FileUpload';
+import { exportToExcel } from '@/lib/export';
 
 const NEXT_STATUS: Record<string, Record<string, string>> = {
   student: { 'Draft': 'Student Mentor Review' },
@@ -59,15 +61,18 @@ const Projects: React.FC = () => {
   };
 
   const handleExport = () => {
-    const headers = ['ID', 'Title', 'Domain', 'Status', 'Team', 'Section'];
-    const csvData = projects.map(p => [
-      p.id, `"${(p.title || '').replace(/"/g, '""')}"`, p.domain, p.status, p.team_name, p.section_name
-    ]);
-    const csv = [headers, ...csvData].map(r => r.join(',')).join('\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-    a.download = 'projects_export.csv';
-    a.click();
+    const rows = projects.map(p => ({
+      ID: p.id,
+      Title: p.title || '',
+      Domain: p.domain || '',
+      Status: p.status,
+      Team: p.team_name || '',
+      Section: p.section_name || '',
+      'GitHub Link': p.github_link || '',
+      'Video Link': p.video_link || '',
+      'Updated At': p.updated_at || '',
+    }));
+    exportToExcel(rows, `projects_${new Date().toISOString().slice(0, 10)}`, 'Projects');
     toast({ title: 'Export complete' });
   };
 
@@ -88,7 +93,15 @@ const Projects: React.FC = () => {
       { label: 'Abstract', done: !!project.abstract },
       { label: 'GitHub Link', done: !!project.github_link },
       { label: 'Video Link', done: !!project.video_link },
+      { label: 'PPT', done: !!project.ppt_file },
+      { label: 'Report', done: !!project.report_file },
+      { label: 'Yukthi File', done: !!project.yukthi_file },
     ];
+
+    const updateFile = (field: 'ppt_file' | 'report_file' | 'yukthi_file') =>
+      async (newPath: string | null) => {
+        await updateProject(project.id, { [field]: newPath });
+      };
 
     return (
       <div className="space-y-6">
@@ -172,10 +185,38 @@ const Projects: React.FC = () => {
             </div>
           )}
 
+          {/* File uploads */}
+          <div className="p-4 rounded-lg border border-border bg-muted/10 space-y-3">
+            <p className="text-xs font-medium text-muted-foreground">Project Files (PDF / PPT / DOC, max 20 MB each)</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <FileUpload
+                label="PPT"
+                kind="ppt"
+                teamId={project.team_id ? Number(project.team_id) : null}
+                currentPath={project.ppt_file}
+                onChange={updateFile('ppt_file')}
+              />
+              <FileUpload
+                label="Report"
+                kind="report"
+                teamId={project.team_id ? Number(project.team_id) : null}
+                currentPath={project.report_file}
+                onChange={updateFile('report_file')}
+              />
+              <FileUpload
+                label="Yukthi File"
+                kind="yukthi"
+                teamId={project.team_id ? Number(project.team_id) : null}
+                currentPath={project.yukthi_file}
+                onChange={updateFile('yukthi_file')}
+              />
+            </div>
+          </div>
+
           {/* Checklist */}
           <div className="p-4 rounded-lg bg-muted/30 border border-border/50">
             <p className="text-xs font-medium text-muted-foreground mb-3">Submission Checklist</p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
               {checklist.map(item => (
                 <div key={item.label} className="flex items-center gap-2 text-sm">
                   <div className={`w-3 h-3 rounded-full border-2 ${item.done ? 'bg-green-500 border-green-500' : 'border-border'}`} />
@@ -204,9 +245,9 @@ const Projects: React.FC = () => {
           <h1 className="text-2xl font-heading font-bold">Projects</h1>
           <p className="text-muted-foreground text-sm mt-1">Track and manage all micro projects</p>
         </div>
-        {isAdmin && (
+        {(isAdmin || isMentor) && (
           <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="w-4 h-4 mr-2" /> Export CSV
+            <Download className="w-4 h-4 mr-2" /> Export Excel
           </Button>
         )}
       </div>

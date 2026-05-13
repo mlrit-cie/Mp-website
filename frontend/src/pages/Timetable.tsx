@@ -59,7 +59,7 @@ const Timetable: React.FC = () => {
     try {
       const [ttRes, secRes, usersRes] = await Promise.all([
         supabase.from('timetable').select('*').order('day_of_week').order('start_time'),
-        supabase.from('sections').select('id, name, department'),
+        supabase.from('sections').select('id, name, department, faculty_mentor_id, student_mentor_ids'),
         supabase.from('users').select('id, name, role').in('role', ['faculty', 'student_mentor']),
       ]);
 
@@ -71,6 +71,7 @@ const Timetable: React.FC = () => {
       (secRes.data || []).forEach((s: any) => { secMap[s.id] = s.name; });
 
       setSections(secRes.data || []);
+      // Master lists, used as a fallback when no section is picked
       setFacultyList(allUsers.filter(u => u.role === 'faculty'));
       setStudentMentorList(allUsers.filter(u => u.role === 'student_mentor'));
 
@@ -107,6 +108,25 @@ const Timetable: React.FC = () => {
     if (user.role === 'faculty') return entries.filter(e => e.faculty_id === user.id);
     return entries.filter(e => e.student_mentor_ids.includes(Number(user.id)));
   }, [entries, user, isFacultyOrMentor]);
+
+  // Scope mentor pickers to the section the admin is creating/editing a slot for.
+  // Spec: "admin reassigns mentors weekly" → mentors come from the section's assigned pool.
+  const selectedSection: any = useMemo(
+    () => sections.find((s: any) => String(s.id) === form.section_id) || null,
+    [sections, form.section_id],
+  );
+
+  const scopedFacultyList = useMemo(() => {
+    if (!selectedSection?.faculty_mentor_id) return [];
+    return facultyList.filter(f => Number(f.id) === Number(selectedSection.faculty_mentor_id));
+  }, [facultyList, selectedSection]);
+
+  const scopedStudentMentorList = useMemo(() => {
+    const ids = (selectedSection?.student_mentor_ids ?? []) as number[];
+    if (ids.length === 0) return [];
+    const idSet = new Set(ids.map(Number));
+    return studentMentorList.filter(m => idSet.has(Number(m.id)));
+  }, [studentMentorList, selectedSection]);
 
   const todaysClasses = useMemo(() => {
     const today = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date()) as DayOfWeek;
@@ -198,7 +218,14 @@ const Timetable: React.FC = () => {
               <div className="space-y-2">
                 <Label>Section *</Label>
                 <select className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                  value={form.section_id} onChange={e => setForm(p => ({ ...p, section_id: e.target.value }))}>
+                  value={form.section_id}
+                  onChange={e => setForm(p => ({
+                    // Switching section invalidates the mentor selections (different pool).
+                    ...p,
+                    section_id: e.target.value,
+                    faculty_id: '',
+                    student_mentor_ids: [],
+                  }))}>
                   <option value="">Select Section</option>
                   {sections.map((s: any) => <option key={s.id} value={s.id}>{s.name} ({s.department})</option>)}
                 </select>
@@ -235,26 +262,38 @@ const Timetable: React.FC = () => {
             <div className="space-y-2">
               <Label>Faculty Mentor</Label>
               <select className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                value={form.faculty_id} onChange={e => setForm(p => ({ ...p, faculty_id: e.target.value }))}>
-                <option value="">None</option>
-                {facultyList.map((f: any) => <option key={f.id} value={f.id}>{f.name}</option>)}
+                value={form.faculty_id}
+                disabled={!form.section_id}
+                onChange={e => setForm(p => ({ ...p, faculty_id: e.target.value }))}>
+                <option value="">{form.section_id ? (scopedFacultyList.length ? 'None' : 'No faculty assigned to this section') : 'Pick a section first'}</option>
+                {scopedFacultyList.map((f: any) => <option key={f.id} value={f.id}>{f.name}</option>)}
               </select>
             </div>
             <div className="space-y-2">
               <Label>Student Mentors</Label>
-              <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-2 border rounded-md">
-                {studentMentorList.map((m: any) => (
-                  <label key={m.id} className="flex items-center gap-2 text-xs p-1 rounded cursor-pointer hover:bg-muted">
-                    <input type="checkbox" checked={form.student_mentor_ids.includes(m.id)}
-                      onChange={e => setForm(p => ({
-                        ...p, student_mentor_ids: e.target.checked
-                          ? [...p.student_mentor_ids, m.id]
-                          : p.student_mentor_ids.filter(id => id !== m.id),
-                      }))} />
-                    <span className="truncate">{m.name}</span>
-                  </label>
-                ))}
-              </div>
+              {!form.section_id ? (
+                <p className="text-[11px] text-muted-foreground italic p-3 border border-dashed rounded-md">
+                  Pick a section first — student mentors are scoped to that section.
+                </p>
+              ) : scopedStudentMentorList.length === 0 ? (
+                <p className="text-[11px] text-muted-foreground italic p-3 border border-dashed rounded-md">
+                  No student mentors assigned to this section yet. Assign them in the Sections page first.
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-2 border rounded-md">
+                  {scopedStudentMentorList.map((m: any) => (
+                    <label key={m.id} className="flex items-center gap-2 text-xs p-1 rounded cursor-pointer hover:bg-muted">
+                      <input type="checkbox" checked={form.student_mentor_ids.includes(m.id)}
+                        onChange={e => setForm(p => ({
+                          ...p, student_mentor_ids: e.target.checked
+                            ? [...p.student_mentor_ids, m.id]
+                            : p.student_mentor_ids.filter(id => id !== m.id),
+                        }))} />
+                      <span className="truncate">{m.name}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>

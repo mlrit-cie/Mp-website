@@ -83,10 +83,10 @@ const SignUp = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-purple-600 via-pink-600 to-red-600 flex-col justify-between p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-600 via-blue-600 to-red-600 flex-col justify-between p-12 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-10 w-72 h-72 rounded-full bg-purple-400 blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 rounded-full bg-pink-500 blur-3xl" />
+          <div className="absolute top-20 left-10 w-72 h-72 rounded-full bg-green-400 blur-3xl" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 rounded-full bg-blue-500 blur-3xl" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-red-400 blur-3xl" />
         </div>
 
@@ -114,7 +114,7 @@ const SignUp = () => {
 
           <h1 className="text-4xl font-heading font-bold text-white leading-tight">
             Join Our<br />
-            <span className="text-pink-200">Community</span>
+            <span className="text-blue-200">Community</span>
           </h1>
 
           <p className="text-white/80 max-w-md leading-relaxed">
@@ -144,7 +144,7 @@ const SignUp = () => {
       <div className="flex-1 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md space-y-8">
           <div className="lg:hidden flex items-center gap-3 justify-center mb-4">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-600 to-blue-600 flex items-center justify-center">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-heading font-bold">ProjectSphere</span>
@@ -159,7 +159,7 @@ const SignUp = () => {
               Back to Login
             </Link>
             
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-500/10 dark:to-pink-500/10 text-purple-600 dark:text-purple-400 text-xs font-medium mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-500/10 dark:to-blue-500/10 text-green-600 dark:text-green-400 text-xs font-medium mb-3">
               <UserPlus className="w-3 h-3" /> Sign Up
             </div>
             <h2 className="text-2xl font-heading font-bold">Create Account</h2>
@@ -182,7 +182,7 @@ const SignUp = () => {
                 placeholder="John Doe"
                 value={formData.name}
                 onChange={handleChange}
-                className="focus-visible:ring-purple-500"
+                className="focus-visible:ring-green-500"
                 required
               />
             </div>
@@ -196,7 +196,7 @@ const SignUp = () => {
                 placeholder="your.email@mlrit.ac.in"
                 value={formData.email}
                 onChange={handleChange}
-                className="focus-visible:ring-purple-500"
+                className="focus-visible:ring-green-500"
                 required
               />
             </div>
@@ -204,7 +204,7 @@ const SignUp = () => {
             <div className="space-y-2">
               <Label htmlFor="role">Role *</Label>
               <Select value={formData.role} onValueChange={handleRoleChange}>
-                <SelectTrigger className="focus:ring-purple-500">
+                <SelectTrigger className="focus:ring-green-500">
                   <SelectValue placeholder="Select your role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -226,7 +226,7 @@ const SignUp = () => {
                   placeholder="At least 6 characters"
                   value={formData.password}
                   onChange={handleChange}
-                  className="focus-visible:ring-purple-500 pr-10"
+                  className="focus-visible:ring-green-500 pr-10"
                   required
                 />
                 <button
@@ -250,7 +250,7 @@ const SignUp = () => {
                   placeholder="Re-enter your password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="focus-visible:ring-purple-500 pr-10"
+                  className="focus-visible:ring-green-500 pr-10"
                   required
                 />
                 <button
@@ -266,7 +266,7 @@ const SignUp = () => {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+              className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white"
               size="lg"
               disabled={isLoading}
             >
@@ -288,7 +288,7 @@ const SignUp = () => {
             <span className="text-muted-foreground">Already have an account? </span>
             <Link 
               to="/login" 
-              className="text-purple-600 hover:text-purple-700 font-medium transition-colors"
+              className="text-green-600 hover:text-green-700 font-medium transition-colors"
             >
               Sign In
             </Link>
