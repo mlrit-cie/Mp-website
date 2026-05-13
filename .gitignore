@@ -26,6 +26,15 @@ frontend/.env
 frontend/.env.*
 backend/.env
 
+# MCP / Claude local config (contain tokens)
+.mcp.json
+.claude/settings.local.json
+
+# Docs containing credentials / project-specific secrets
+README.md
+README_AUTHENTICATION.md
+.kiro/settings/MCP_SETUP.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
