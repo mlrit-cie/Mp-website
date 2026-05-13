@@ -107,14 +107,7 @@ npm run dev          # Start development server
 npm run build        # Build for production  
 npm run preview      # Preview production build
 npm run lint         # Run ESLint
-```
-
-### Environment Variables
-Create `frontend/.env`:
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_anon_key
-```
+``
 
 ## 📊 Database Schema
 
@@ -135,19 +128,6 @@ cd frontend
 npm run build
 ```
 
-### Deploy to Vercel/Netlify
-1. Connect your repository
-2. Set build command: `cd frontend && npm run build`
-3. Set publish directory: `frontend/dist`
-4. Add environment variables
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
 
 ## 📄 License
 
