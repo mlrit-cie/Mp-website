@@ -30,12 +30,6 @@ npm run dev
 
 The app will be available at `http://localhost:8081/` (or next available port)
 
-### 3. Login
-Use any of these test accounts:
-- **Admin**: admin@mlrit.ac.in / password123
-- **Faculty**: faculty@mlrit.ac.in / password123  
-- **Mentor**: mentor@mlrit.ac.in / password123
-- **Student**: student@mlrit.ac.in / password123
 
 ## 🏗️ Project Structure
 
