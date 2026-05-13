@@ -31,7 +31,6 @@ backend/.env
 .claude/settings.local.json
 
 # Docs containing credentials / project-specific secrets
-README.md
 README_AUTHENTICATION.md
 .kiro/settings/MCP_SETUP.md
 
