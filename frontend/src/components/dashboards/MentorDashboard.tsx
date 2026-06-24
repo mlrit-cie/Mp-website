@@ -79,10 +79,11 @@ const MentorDashboard: React.FC = () => {
           </div>
 
           {/* Assigned sections list */}
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
             <div className="flex items-center gap-2 mb-4">
               <Layers className="w-4 h-4 text-primary" />
-              <h3 className="font-heading font-semibold">My Sections</h3>
+              <h3 className="font-heading font-semibold text-white">My Sections</h3>
             </div>
             {assignedSections.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -90,10 +91,10 @@ const MentorDashboard: React.FC = () => {
                   <button
                     key={s.id}
                     onClick={() => fetchSectionData(s.id)}
-                    className="text-left p-3 rounded-lg border border-border bg-muted/20 hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                    className="text-left p-3.5 rounded-xl border border-white/5 bg-white/[0.01] hover:border-primary/40 hover:bg-primary/5 transition-all duration-200"
                   >
-                    <p className="font-medium text-sm">{s.name}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="font-medium text-sm text-white">{s.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
                       {s.department}{s.academicYear ? ` • ${s.academicYear}` : ''}
                       {typeof s.studentCount === 'number' ? ` • ${s.studentCount} students` : ''}
                     </p>
@@ -106,10 +107,11 @@ const MentorDashboard: React.FC = () => {
           </div>
 
           {/* Weekly updates: recent project changes + recent announcements */}
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
             <div className="flex items-center gap-2 mb-4">
               <Activity className="w-4 h-4 text-primary" />
-              <h3 className="font-heading font-semibold">This Week</h3>
+              <h3 className="font-heading font-semibold text-white">This Week</h3>
               <span className="ml-auto text-[10px] text-muted-foreground">past 7 days</span>
             </div>
             {recentUpdates.length === 0 && announcements.slice(0, 3).length === 0 ? (
@@ -117,11 +119,11 @@ const MentorDashboard: React.FC = () => {
             ) : (
               <div className="space-y-3">
                 {recentUpdates.map(u => (
-                  <div key={`proj-${u.id}`} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/40">
+                  <div key={`proj-${u.id}`} className="flex items-start gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5 hover:border-primary/20 transition-all duration-200">
                     <FolderKanban className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm font-medium truncate">{u.title}</p>
+                        <p className="text-sm font-medium truncate text-white">{u.title}</p>
                         <StatusBadge status={u.status} />
                       </div>
                       <p className="text-xs text-muted-foreground">{u.teamName} • {new Date(u.updatedAt).toLocaleDateString('en-GB')}</p>
@@ -129,12 +131,12 @@ const MentorDashboard: React.FC = () => {
                   </div>
                 ))}
                 {announcements.slice(0, 3).map(a => (
-                  <div key={`ann-${a.id}`} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/40">
+                  <div key={`ann-${a.id}`} className="flex items-start gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5 hover:border-primary/20 transition-all duration-200">
                     <Megaphone className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{a.title}</p>
+                      <p className="text-sm font-medium truncate text-white">{a.title}</p>
                       <p className="text-xs text-muted-foreground line-clamp-1">{a.content}</p>
-                      <p className="text-[10px] text-muted-foreground mt-1">
+                      <p className="text-[10px] text-muted-foreground mt-1 font-mono">
                         {new Date(a.created_at).toLocaleDateString('en-GB')} — {a.author}
                       </p>
                     </div>
@@ -144,16 +146,16 @@ const MentorDashboard: React.FC = () => {
             )}
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h3 className="font-heading font-semibold mb-4">Teams Overview</h3>
+          <div className="glass-card rounded-xl p-6">
+            <h3 className="font-heading font-semibold mb-4 text-white">Teams Overview</h3>
             {loading ? (
               <p className="text-sm text-muted-foreground text-center py-6">Loading teams...</p>
             ) : currentSectionTeams.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {currentSectionTeams.map(t => (
-                  <div key={t.id} className="p-4 rounded-lg border border-border bg-muted/20">
+                  <div key={t.id} className="p-4 rounded-xl border border-white/5 bg-white/[0.01] hover:border-primary/20 transition-all duration-200">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="font-medium">{t.name}</p>
+                      <p className="font-medium text-white">{t.name}</p>
                       <StatusBadge status={t.project_status || 'Draft'} />
                     </div>
                     <p className="text-xs text-muted-foreground truncate">{t.member_names || '—'}</p>
@@ -170,19 +172,19 @@ const MentorDashboard: React.FC = () => {
         </div>
 
         <div className="lg:col-span-1 space-y-4">
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 backdrop-blur-xl">
             <h3 className="text-sm font-heading font-bold text-primary flex items-center gap-2 mb-3">
               <Calendar className="w-4 h-4" /> Today's Schedule
             </h3>
             {todaysClasses.length > 0 ? (
               <div className="space-y-3">
                 {todaysClasses.map(e => (
-                  <div key={e.id} className="p-3 rounded-lg bg-white dark:bg-card border border-primary/10 shadow-sm">
+                  <div key={e.id} className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 hover:border-primary/20 transition-all duration-200 shadow-sm">
                     <div className="flex justify-between items-start mb-1">
-                      <span className="text-[10px] font-bold text-primary">{e.startTime} – {e.endTime}</span>
-                      <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded uppercase font-bold">{e.room}</span>
+                      <span className="text-[10px] font-bold text-primary font-mono">{e.startTime} – {e.endTime}</span>
+                      <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono uppercase font-bold border border-primary/20">{e.room}</span>
                     </div>
-                    <p className="text-xs font-semibold truncate">{e.sectionName}</p>
+                    <p className="text-xs font-semibold truncate text-white">{e.sectionName}</p>
                   </div>
                 ))}
               </div>

@@ -114,6 +114,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   /* ── Login (email + password via Supabase Auth) ── */
   const login = async (email: string, password: string): Promise<{ success: boolean; message?: string }> => {
     try {
+      // MOCK LOGIN - Remove this when Supabase is connected
+      const normalizedEmail = email.trim().toLowerCase();
+      const mockUser: User = {
+        id: '1',
+        name: normalizedEmail.split('@')[0],
+        email: normalizedEmail,
+        role: getRoleFromEmail(normalizedEmail),
+        approved: true,
+      };
+      persist(mockUser);
+      return { success: true };
+      
+      /* Uncomment when Supabase is ready:
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password,
@@ -132,6 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!profile) return { success: false, message: 'Could not load user profile.' };
       persist(profile);
       return { success: true };
+      */
     } catch (err: any) {
       console.error('login error:', err);
       return { success: false, message: err?.message || 'Login failed.' };
@@ -179,6 +193,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   /* ── Google OAuth: redirect to Google ── */
   const loginWithGoogle = async (): Promise<void> => {
+    // MOCK GOOGLE LOGIN - Remove this when Supabase is connected
+    const mockUser: User = {
+      id: '1',
+      name: 'Demo User',
+      email: 'demo@mlrit.ac.in',
+      role: 'student',
+      approved: true,
+    };
+    persist(mockUser);
+    
+    /* Uncomment when Supabase is ready:
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -186,6 +211,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         queryParams: { hd: ALLOWED_EMAIL_DOMAIN, prompt: 'select_account' },
       },
     });
+    */
   };
 
   /* ── Google OAuth: handle callback after redirect ── */

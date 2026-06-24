@@ -9,87 +9,87 @@
     --font-heading: 'Space Grotesk', sans-serif;
     --font-body: 'Inter', sans-serif;
 
-    --background: 142 30% 98%; /* Soft Green Tint */
-    --foreground: 221 40% 10%; /* Deep Blue-Black */
+    --background: 240 10% 4%; /* Deep Charcoal #0a0a0c */
+    --foreground: 142 10% 90%; /* Minty off-white #dde4dd */
 
-    --card: 0 0% 100%;
-    --card-foreground: 221 40% 10%;
+    --card: 240 8% 8%; /* Dark frosted base */
+    --card-foreground: 142 10% 90%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 221 40% 10%;
+    --popover: 240 8% 8%;
+    --popover-foreground: 142 10% 90%;
 
     --primary: 142 71% 45%; /* Emerald Green */
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 240 10% 4%;
 
-    --secondary: 221 83% 53%; /* Royal Blue */
+    --secondary: 225 73% 57%; /* Royal Blue */
     --secondary-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 51%; /* Crimson Red */
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --muted: 142 20% 94%;
-    --muted-foreground: 142 15% 46%;
+    --muted: 240 6% 16%;
+    --muted-foreground: 142 10% 65%;
 
-    --accent: 221 50% 94%;
-    --accent-foreground: 221 63% 25%;
+    --accent: 225 30% 15%;
+    --accent-foreground: 142 71% 85%;
 
-    --border: 142 20% 88%;
-    --input: 142 20% 88%;
+    --border: 240 6% 18%;
+    --input: 240 6% 18%;
     --ring: 142 71% 45%;
 
-    --radius: 0.625rem;
+    --radius: 0.75rem;
 
-    /* Role colors - Admin: Red, Faculty: Blue, Student Mentor: Green, Student: Deep Blue/Green mix */
+    /* Role colors */
     --role-admin: 0 72% 51%;
-    --role-faculty: 221 83% 53%;
+    --role-faculty: 225 73% 57%;
     --role-student-mentor: 142 71% 45%;
-    --role-student: 221 60% 40%; /* Using Blue for students as Orange is banned */
+    --role-student: 225 60% 50%;
 
     /* Sidebar tokens */
-    --sidebar-background: 221 40% 10%;
-    --sidebar-foreground: 142 20% 90%;
+    --sidebar-background: 240 10% 4%;
+    --sidebar-foreground: 142 10% 90%;
     --sidebar-primary: 142 71% 45%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 221 30% 16%;
-    --sidebar-accent-foreground: 142 20% 90%;
-    --sidebar-border: 221 30% 18%;
+    --sidebar-primary-foreground: 240 10% 4%;
+    --sidebar-accent: 240 6% 16%;
+    --sidebar-accent-foreground: 142 10% 90%;
+    --sidebar-border: 240 6% 18%;
     --sidebar-ring: 142 71% 45%;
-    --sidebar-muted: 142 15% 46%;
+    --sidebar-muted: 142 10% 65%;
 
-    /* Success / Warning / Info (Mappings) */
-    --success: 142 71% 45%; /* Green */
-    --warning: 0 72% 51%; /* Red used for warning as Orange/Yellow banned */
-    --info: 221 83% 53%; /* Blue */
+    /* Success / Warning / Info */
+    --success: 142 71% 45%;
+    --warning: 38 92% 50%;
+    --info: 225 73% 57%;
   }
 
   .dark {
-    --background: 221 40% 7%;
-    --foreground: 142 20% 92%;
+    --background: 240 10% 4%;
+    --foreground: 142 10% 90%;
 
-    --card: 221 35% 11%;
-    --card-foreground: 142 20% 92%;
+    --card: 240 8% 8%;
+    --card-foreground: 142 10% 90%;
 
-    --popover: 221 35% 11%;
-    --popover-foreground: 142 20% 92%;
+    --popover: 240 8% 8%;
+    --popover-foreground: 142 10% 90%;
 
-    --primary: 142 71% 55%;
-    --primary-foreground: 221 40% 10%;
+    --primary: 142 71% 45%;
+    --primary-foreground: 240 10% 4%;
 
-    --secondary: 221 83% 63%;
-    --secondary-foreground: 221 40% 10%;
+    --secondary: 225 73% 57%;
+    --secondary-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 61%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --muted: 221 30% 16%;
-    --muted-foreground: 142 15% 55%;
+    --muted: 240 6% 16%;
+    --muted-foreground: 142 10% 65%;
 
-    --accent: 142 40% 16%;
-    --accent-foreground: 142 50% 75%;
+    --accent: 225 30% 15%;
+    --accent-foreground: 142 71% 85%;
 
-    --border: 221 30% 18%;
-    --input: 221 30% 18%;
-    --ring: 142 71% 55%;
+    --border: 240 6% 18%;
+    --input: 240 6% 18%;
+    --ring: 142 71% 45%;
   }
 }
 
@@ -108,37 +108,44 @@
 
 @layer utilities {
   .text-gradient-primary {
-    background: linear-gradient(135deg, hsl(142 71% 45%), hsl(221 83% 53%));
+    background: linear-gradient(135deg, hsl(142 71% 55%), hsl(225 73% 67%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   .bg-gradient-hero {
-    background: linear-gradient(135deg, hsl(221 40% 8%), hsl(221 40% 14%));
+    background: linear-gradient(135deg, hsl(240 10% 3%), hsl(240 8% 6%));
   }
   .bg-gradient-hero-admin {
-    background: linear-gradient(135deg, hsl(0 40% 12%), hsl(0 50% 20%));
+    background: linear-gradient(135deg, hsl(0 40% 6% / 0.8), hsl(0 50% 10% / 0.6));
   }
   .bg-gradient-hero-faculty {
-    background: linear-gradient(135deg, hsl(221 50% 12%), hsl(221 60% 20%));
+    background: linear-gradient(135deg, hsl(225 50% 6% / 0.8), hsl(225 60% 10% / 0.6));
   }
   .bg-gradient-hero-mentor {
-    background: linear-gradient(135deg, hsl(142 40% 10%), hsl(142 50% 18%));
+    background: linear-gradient(135deg, hsl(142 40% 5% / 0.8), hsl(142 50% 9% / 0.6));
   }
   .bg-gradient-hero-student {
-    background: linear-gradient(135deg, hsl(221 50% 12%), hsl(221 60% 20%));
+    background: linear-gradient(135deg, hsl(225 50% 6% / 0.8), hsl(225 60% 10% / 0.6));
   }
   .bg-gradient-card-green {
-    background: linear-gradient(135deg, hsl(142 50% 94%), hsl(142 40% 97%));
+    background: linear-gradient(135deg, hsl(142 71% 45% / 0.08), hsl(142 71% 45% / 0.02));
   }
   .bg-gradient-card-blue {
-    background: linear-gradient(135deg, hsl(221 70% 95%), hsl(221 60% 97%));
+    background: linear-gradient(135deg, hsl(225 73% 57% / 0.08), hsl(225 73% 57% / 0.02));
   }
   .bg-gradient-card-red {
-    background: linear-gradient(135deg, hsl(0 60% 95%), hsl(0 50% 97%));
+    background: linear-gradient(135deg, hsl(0 72% 51% / 0.08), hsl(0 72% 51% / 0.02));
   }
   .glass-card {
-    @apply backdrop-blur-xl border border-border/50;
-    background: hsl(var(--card) / 0.8);
+    @apply backdrop-blur-xl border border-white/10;
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .glass-panel {
+    @apply backdrop-blur-2xl border border-white/10 shadow-2xl;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .emerald-glow:hover {
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.25);
   }
 }

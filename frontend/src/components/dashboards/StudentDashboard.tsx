@@ -99,7 +99,8 @@ const StudentDashboard: React.FC = () => {
       {!loading && project && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Team details */}
-          <div className="rounded-xl border border-border bg-card p-6">
+          <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
             <div className="flex items-center gap-2 mb-4">
               <UsersIcon className="w-4 h-4 text-primary" />
               <h3 className="font-heading font-semibold">Team {project.team_name}</h3>
@@ -108,13 +109,13 @@ const StudentDashboard: React.FC = () => {
             {teammates.length > 0 ? (
               <ul className="space-y-2">
                 {teammates.map(m => (
-                  <li key={m.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30 border border-border/40">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                  <li key={m.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/5 hover:border-primary/20 transition-all duration-200">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs font-bold border border-primary/20">
                       {m.name.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{m.name}{Number(user?.id) === m.id ? ' (you)' : ''}</p>
-                      {m.roll && <p className="text-[10px] text-muted-foreground">{m.roll}</p>}
+                      {m.roll && <p className="text-[10px] text-muted-foreground font-mono">{m.roll}</p>}
                     </div>
                   </li>
                 ))}
@@ -125,7 +126,8 @@ const StudentDashboard: React.FC = () => {
           </div>
 
           {/* Project card */}
-          <div className="rounded-xl border border-border bg-card p-6">
+          <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-heading font-semibold">My Project</h3>
               <StatusBadge status={project.status} />
@@ -133,38 +135,40 @@ const StudentDashboard: React.FC = () => {
             <h4 className="text-lg font-medium">{project.title || 'Untitled Project'}</h4>
             <p className="text-sm text-muted-foreground mt-1">Domain: {project.domain || '—'}</p>
             {project.abstract && (
-              <p className="mt-3 text-sm text-muted-foreground line-clamp-3">{project.abstract}</p>
+              <p className="mt-3 text-sm text-muted-foreground line-clamp-3 leading-relaxed">{project.abstract}</p>
             )}
-            <Link to="/projects" className="mt-4 flex items-center gap-1 text-sm text-primary hover:underline">
+            <Link to="/projects" className="mt-4 inline-flex items-center gap-1 text-sm text-primary hover:underline font-medium">
               View full project <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
           {/* Mentor feedback (full-width when present) */}
           {project.feedback && (
-            <div className="lg:col-span-2 rounded-xl border border-blue-200 dark:border-blue-500/30 bg-blue-50/50 dark:bg-blue-500/5 p-6">
+            <div className="lg:col-span-2 rounded-xl border border-blue-500/20 bg-blue-500/5 backdrop-blur-xl p-6">
               <div className="flex items-center gap-2 mb-2">
-                <MessageSquare className="w-4 h-4 text-blue-700 dark:text-blue-400" />
-                <h3 className="font-heading font-semibold text-blue-700 dark:text-blue-400">Mentor Feedback</h3>
+                <MessageSquare className="w-4 h-4 text-secondary" />
+                <h3 className="font-heading font-semibold text-secondary">Mentor Feedback</h3>
               </div>
-              <p className="text-sm">{project.feedback}</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">{project.feedback}</p>
             </div>
           )}
 
           {/* Submission checklist */}
-          <div className="rounded-xl border border-border bg-card p-6">
+          <div className="glass-card rounded-xl p-6">
             <h3 className="font-heading font-semibold mb-4">Submission Checklist</h3>
             <div className="space-y-3">
               {checklist.map(item => (
                 <div key={item.label} className="flex items-center gap-3">
-                  <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${item.done ? 'bg-green-500 border-green-500' : 'border-border'}`} />
+                  <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${item.done ? 'bg-green-500 border-green-500' : 'border-white/20'}`}>
+                    {item.done && <span className="text-[8px] text-white">✓</span>}
+                  </div>
                   <span className={`text-sm ${item.done ? 'text-foreground' : 'text-muted-foreground'}`}>{item.label}</span>
-                  {item.done && <span className="ml-auto text-xs text-green-600 font-medium">Done</span>}
+                  {item.done && <span className="ml-auto text-xs text-green-400 font-medium">Done</span>}
                 </div>
               ))}
             </div>
             {completedItems < checklist.length && (
-              <Link to="/projects" className="mt-5 block w-full text-center py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity">
+              <Link to="/projects" className="mt-5 block w-full text-center py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-blue-600 text-white text-sm font-semibold hover:shadow-lg hover:shadow-emerald-500/10 active:scale-[0.98] transition-all duration-200">
                 Complete Submission
               </Link>
             )}

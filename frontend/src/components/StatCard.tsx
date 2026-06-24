@@ -11,21 +11,21 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, icon, variant = 'default' }) => {
   const bgClass = {
-    green: 'bg-gradient-card-green',
-    blue: 'bg-gradient-card-blue',
-    red: 'bg-gradient-card-red',
-    default: 'bg-card',
+    green: 'bg-gradient-card-green border-emerald-500/20 shadow-emerald-500/5',
+    blue: 'bg-gradient-card-blue border-blue-500/20 shadow-blue-500/5',
+    red: 'bg-gradient-card-red border-red-500/20 shadow-red-500/5',
+    default: 'bg-white/3 border-white/10',
   };
 
   const iconBg = {
-    green: 'bg-primary/10 text-primary',
-    blue: 'bg-secondary/10 text-secondary',
-    red: 'bg-destructive/10 text-destructive',
-    default: 'bg-muted text-muted-foreground',
+    green: 'bg-primary/10 text-primary border border-primary/20',
+    blue: 'bg-secondary/10 text-secondary border border-secondary/20',
+    red: 'bg-destructive/10 text-destructive border border-destructive/20',
+    default: 'bg-white/5 text-muted-foreground border border-white/10',
   };
 
   return (
-    <div className={cn("rounded-xl border border-border p-5 animate-fade-in", bgClass[variant])}>
+    <div className={cn("rounded-xl border p-5 backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] shadow-lg flex flex-col justify-between", bgClass[variant])}>
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm text-muted-foreground font-medium">{title}</p>

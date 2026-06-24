@@ -47,8 +47,9 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Section-wise project status chart */}
-      <div className="rounded-xl border border-border bg-card p-5">
-        <h3 className="font-heading font-semibold mb-4">Section-wise Project Status</h3>
+      <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+        <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+        <h3 className="font-heading font-semibold mb-4 text-white">Section-wise Project Status</h3>
         {sectionProjectData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={sectionProjectData}>
@@ -69,10 +70,11 @@ const AdminDashboard: React.FC = () => {
       {/* Domain popularity + Mentor workload */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Domain popularity */}
-        <div className="rounded-xl border border-border bg-card p-5">
+        <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="w-4 h-4 text-primary" />
-            <h3 className="font-heading font-semibold">Domain Popularity</h3>
+            <h3 className="font-heading font-semibold text-white">Domain Popularity</h3>
           </div>
           {domainPopularity.length > 0 ? (
             <ResponsiveContainer width="100%" height={280}>
@@ -101,10 +103,11 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Mentor workload */}
-        <div className="rounded-xl border border-border bg-card p-5">
+        <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center gap-2 mb-4">
             <Activity className="w-4 h-4 text-primary" />
-            <h3 className="font-heading font-semibold">Mentor Workload</h3>
+            <h3 className="font-heading font-semibold text-white">Mentor Workload</h3>
             <span className="ml-auto text-[10px] text-muted-foreground">top 10</span>
           </div>
           {mentorWorkload.length > 0 ? (
@@ -113,7 +116,7 @@ const AdminDashboard: React.FC = () => {
                 <XAxis type="number" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
                 <YAxis dataKey="mentor" type="category" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} width={110} />
                 <Tooltip />
-                <Bar dataKey="projects" fill="hsl(215, 80%, 55%)" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="projects" fill="hsl(225, 73%, 57%)" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -123,20 +126,21 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Recent announcements */}
-      <div className="rounded-xl border border-border bg-card p-5">
+      <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+        <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
         <div className="flex items-center gap-2 mb-4">
           <Megaphone className="w-4 h-4 text-primary" />
-          <h3 className="font-heading font-semibold">Recent Announcements</h3>
+          <h3 className="font-heading font-semibold text-white">Recent Announcements</h3>
         </div>
         {annLoading ? (
           <div className="flex justify-center py-6"><Loader2 className="w-5 h-5 animate-spin text-primary" /></div>
         ) : announcements.length > 0 ? (
           <div className="space-y-3">
             {announcements.slice(0, 5).map(a => (
-              <div key={a.id} className="p-3 rounded-lg bg-muted/50 border border-border/50">
-                <p className="text-sm font-medium">{a.title}</p>
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{a.content}</p>
-                <p className="text-[10px] text-muted-foreground mt-2">
+              <div key={a.id} className="p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:border-primary/20 transition-all duration-200">
+                <p className="text-sm font-medium text-white">{a.title}</p>
+                <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">{a.content}</p>
+                <p className="text-[10px] text-muted-foreground mt-2 font-mono">
                   {new Date(a.created_at).toLocaleDateString('en-GB')} — {a.author}
                 </p>
               </div>
