@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, PieC
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAnnouncements } from '@/hooks/useAnnouncements';
 import { ProjectStatus } from '@/lib/types';
+import { PremiumCard } from '@/components/ui/premium-card';
 
 const DOMAIN_COLORS = [
   'hsl(215, 80%, 55%)', 'hsl(145, 63%, 45%)', 'hsl(280, 60%, 55%)', 'hsl(38, 92%, 55%)',
@@ -39,15 +40,15 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <StatCard title="Total Students" value={stats?.studentCount ?? 0} subtitle="Enrolled" icon={<Users className="w-5 h-5" />} variant="blue" />
-        <StatCard title="Sections" value={stats?.sectionCount ?? 0} subtitle="Active" icon={<Layers className="w-5 h-5" />} variant="green" />
-        <StatCard title="Projects" value={stats?.projectCount ?? 0} subtitle="Current Year" icon={<FileCheck className="w-5 h-5" />} variant="green" />
-        <StatCard title="Mentors" value={stats?.mentorCount ?? 0} subtitle="Faculty & Student" icon={<Users className="w-5 h-5" />} variant="red" />
-        <StatCard title="Pending Approvals" value={stats?.pendingApprovals ?? 0} subtitle="Awaiting review" icon={<AlertTriangle className="w-5 h-5" />} variant="red" />
+        <StatCard index={0} title="Total Students" value={stats?.studentCount ?? 0} subtitle="Enrolled" icon={<Users className="w-5 h-5" />} variant="blue" />
+        <StatCard index={1} title="Sections" value={stats?.sectionCount ?? 0} subtitle="Active" icon={<Layers className="w-5 h-5" />} variant="green" />
+        <StatCard index={2} title="Projects" value={stats?.projectCount ?? 0} subtitle="Current Year" icon={<FileCheck className="w-5 h-5" />} variant="green" />
+        <StatCard index={3} title="Mentors" value={stats?.mentorCount ?? 0} subtitle="Faculty & Student" icon={<Users className="w-5 h-5" />} variant="red" />
+        <StatCard index={4} title="Pending Approvals" value={stats?.pendingApprovals ?? 0} subtitle="Awaiting review" icon={<AlertTriangle className="w-5 h-5" />} variant="red" />
       </div>
 
       {/* Section-wise project status chart */}
-      <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+      <PremiumCard index={0} interactive="subtle" className="p-6 relative overflow-hidden">
         <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
         <h3 className="font-heading font-semibold mb-4 text-white">Section-wise Project Status</h3>
         {sectionProjectData.length > 0 ? (
@@ -65,12 +66,12 @@ const AdminDashboard: React.FC = () => {
         ) : (
           <p className="text-sm text-muted-foreground text-center py-8">No project data yet</p>
         )}
-      </div>
+      </PremiumCard>
 
       {/* Domain popularity + Mentor workload */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Domain popularity */}
-        <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+        <PremiumCard index={1} interactive="subtle" className="p-6 relative overflow-hidden">
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="w-4 h-4 text-primary" />
@@ -100,10 +101,10 @@ const AdminDashboard: React.FC = () => {
           ) : (
             <p className="text-sm text-muted-foreground text-center py-8">No project domains yet</p>
           )}
-        </div>
+        </PremiumCard>
 
         {/* Mentor workload */}
-        <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+        <PremiumCard index={2} interactive="subtle" className="p-6 relative overflow-hidden">
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center gap-2 mb-4">
             <Activity className="w-4 h-4 text-primary" />
@@ -122,11 +123,11 @@ const AdminDashboard: React.FC = () => {
           ) : (
             <p className="text-sm text-muted-foreground text-center py-8">No assigned projects yet</p>
           )}
-        </div>
+        </PremiumCard>
       </div>
 
       {/* Recent announcements */}
-      <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+      <PremiumCard index={3} interactive="subtle" className="p-6 relative overflow-hidden">
         <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
         <div className="flex items-center gap-2 mb-4">
           <Megaphone className="w-4 h-4 text-primary" />
@@ -149,7 +150,7 @@ const AdminDashboard: React.FC = () => {
         ) : (
           <p className="text-sm text-muted-foreground text-center py-6">No announcements yet</p>
         )}
-      </div>
+      </PremiumCard>
     </div>
   );
 };

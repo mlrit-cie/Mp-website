@@ -12,6 +12,7 @@ import {
 import { Link } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import PendingApprovalsPanel from '@/components/PendingApprovalsPanel';
+import { PremiumCard } from '@/components/ui/premium-card';
 
 interface MentorSummary {
   sections: { id: number; name: string; department: string | null }[];
@@ -123,7 +124,7 @@ const Profile: React.FC = () => {
         </p>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-6">
+      <PremiumCard interactive="subtle" className="p-6 md:p-8">
         <div className="flex items-start gap-5">
           {/* Avatar */}
           <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center text-3xl font-bold text-primary font-heading shrink-0">
@@ -211,14 +212,14 @@ const Profile: React.FC = () => {
             )}
           </div>
         </div>
-      </div>
+      </PremiumCard>
 
       {/* Admin-only: pending approvals (also surfaced on the dashboard) */}
       {isAdmin && <PendingApprovalsPanel variant="amber" />}
 
       {/* Mentor-only: assigned workload */}
       {isMentor && (
-        <div className="rounded-xl border border-border bg-card p-6 space-y-5">
+        <PremiumCard interactive="subtle" index={1} className="p-6 md:p-8 space-y-5">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-heading font-semibold">Mentor Workload</h2>
@@ -286,7 +287,7 @@ const Profile: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
+      </PremiumCard>
       )}
     </div>
   );

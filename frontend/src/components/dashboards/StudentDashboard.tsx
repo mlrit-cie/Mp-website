@@ -6,6 +6,7 @@ import { useProjects } from '@/hooks/useProjects';
 import { supabase } from '@/lib/supabase';
 import { FolderKanban, FileCheck, Clock, ChevronRight, Users as UsersIcon, CalendarClock, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PremiumCard } from '@/components/ui/premium-card';
 
 const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -55,18 +56,21 @@ const StudentDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
+          index={0}
           title="Project Status"
           value={project?.status || 'No Project'}
           icon={<FolderKanban className="w-5 h-5" />}
           variant="green"
         />
         <StatCard
+          index={1}
           title="Team"
           value={project?.team_name || '—'}
           icon={<FileCheck className="w-5 h-5" />}
           variant="blue"
         />
         <StatCard
+          index={2}
           title="Submission"
           value={`${completedItems} / ${checklist.length}`}
           subtitle="checklist items"
@@ -74,6 +78,7 @@ const StudentDashboard: React.FC = () => {
           variant={completedItems === checklist.length && checklist.length > 0 ? 'green' : 'red'}
         />
         <StatCard
+          index={3}
           title="Deadline"
           value={deadline ? deadline.toLocaleDateString('en-GB') : '—'}
           subtitle={
@@ -99,7 +104,7 @@ const StudentDashboard: React.FC = () => {
       {!loading && project && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Team details */}
-          <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+          <PremiumCard index={0} interactive="subtle" className="p-6 relative overflow-hidden">
             <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
             <div className="flex items-center gap-2 mb-4">
               <UsersIcon className="w-4 h-4 text-primary" />
@@ -123,10 +128,10 @@ const StudentDashboard: React.FC = () => {
             ) : (
               <p className="text-sm text-muted-foreground text-center py-4">No teammates loaded yet</p>
             )}
-          </div>
+          </PremiumCard>
 
           {/* Project card */}
-          <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+          <PremiumCard index={1} interactive="subtle" className="p-6 relative overflow-hidden">
             <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-heading font-semibold">My Project</h3>
@@ -140,21 +145,21 @@ const StudentDashboard: React.FC = () => {
             <Link to="/projects" className="mt-4 inline-flex items-center gap-1 text-sm text-primary hover:underline font-medium">
               View full project <ChevronRight className="w-3.5 h-3.5" />
             </Link>
-          </div>
+          </PremiumCard>
 
           {/* Mentor feedback (full-width when present) */}
           {project.feedback && (
-            <div className="lg:col-span-2 rounded-xl border border-blue-500/20 bg-blue-500/5 backdrop-blur-xl p-6">
+            <PremiumCard index={2} interactive="subtle" className="lg:col-span-2 bg-gradient-card-blue border-blue-500/20 p-6 relative overflow-hidden">
               <div className="flex items-center gap-2 mb-2">
                 <MessageSquare className="w-4 h-4 text-secondary" />
                 <h3 className="font-heading font-semibold text-secondary">Mentor Feedback</h3>
               </div>
               <p className="text-sm leading-relaxed text-muted-foreground">{project.feedback}</p>
-            </div>
+            </PremiumCard>
           )}
 
           {/* Submission checklist */}
-          <div className="glass-card rounded-xl p-6">
+          <PremiumCard index={3} interactive="subtle" className="p-6">
             <h3 className="font-heading font-semibold mb-4">Submission Checklist</h3>
             <div className="space-y-3">
               {checklist.map(item => (
@@ -172,7 +177,7 @@ const StudentDashboard: React.FC = () => {
                 Complete Submission
               </Link>
             )}
-          </div>
+          </PremiumCard>
         </div>
       )}
 

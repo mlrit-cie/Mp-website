@@ -8,6 +8,7 @@ import { Calendar as CalendarIcon, Check, X, Clock, Download, Loader2, Search } 
 import { toast } from '@/hooks/use-toast';
 import { exportToExcel } from '@/lib/export';
 import { cn } from '@/lib/utils';
+import { PremiumCard } from '@/components/ui/premium-card';
 
 type Status = 'present' | 'absent' | 'late';
 
@@ -175,25 +176,25 @@ const Attendance: React.FC = () => {
 
       {/* Summary tiles */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-lg border bg-card p-3">
-          <p className="text-[10px] text-muted-foreground uppercase">Total</p>
-          <p className="text-xl font-bold">{stats.total}</p>
-        </div>
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 dark:bg-emerald-500/10 dark:border-emerald-500/30 p-3">
-          <p className="text-[10px] text-emerald-700 dark:text-emerald-400 uppercase">Present</p>
-          <p className="text-xl font-bold text-emerald-700 dark:text-emerald-400">{stats.present}</p>
-        </div>
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
-          <p className="text-[10px] text-destructive uppercase">Absent</p>
-          <p className="text-xl font-bold text-destructive">{stats.absent}</p>
-        </div>
-        <div className="rounded-lg border border-blue-200 bg-blue-50/50 dark:bg-blue-500/10 dark:border-blue-500/30 p-3">
-          <p className="text-[10px] text-blue-700 dark:text-blue-400 uppercase">Late</p>
-          <p className="text-xl font-bold text-blue-700 dark:text-blue-400">{stats.late}</p>
-        </div>
+        <PremiumCard index={0} interactive="subtle" className="p-4 flex flex-col justify-between">
+          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Total</p>
+          <p className="text-2xl font-bold font-heading mt-1">{stats.total}</p>
+        </PremiumCard>
+        <PremiumCard index={1} interactive="subtle" className="border-emerald-500/20 bg-gradient-card-green p-4 flex flex-col justify-between">
+          <p className="text-[10px] text-primary uppercase font-bold tracking-wider">Present</p>
+          <p className="text-2xl font-bold font-heading mt-1 text-primary">{stats.present}</p>
+        </PremiumCard>
+        <PremiumCard index={2} interactive="subtle" className="border-destructive/20 bg-gradient-card-red p-4 flex flex-col justify-between">
+          <p className="text-[10px] text-destructive uppercase font-bold tracking-wider">Absent</p>
+          <p className="text-2xl font-bold font-heading mt-1 text-destructive">{stats.absent}</p>
+        </PremiumCard>
+        <PremiumCard index={3} interactive="subtle" className="border-blue-500/20 bg-gradient-card-blue p-4 flex flex-col justify-between">
+          <p className="text-[10px] text-secondary uppercase font-bold tracking-wider">Late</p>
+          <p className="text-2xl font-bold font-heading mt-1 text-secondary">{stats.late}</p>
+        </PremiumCard>
       </div>
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <PremiumCard index={4} interactive={false} className="overflow-hidden">
         <div className="p-3 border-b border-border flex items-center gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
@@ -259,7 +260,7 @@ const Attendance: React.FC = () => {
             ))}
           </ul>
         )}
-      </div>
+      </PremiumCard>
     </div>
   );
 };

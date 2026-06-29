@@ -10,6 +10,7 @@ import {
 import { Calendar as CalendarIcon, MapPin, Plus, Trash2, Pencil, Bell, Info, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
+import { PremiumCard } from '@/components/ui/premium-card';
 
 type DayOfWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday';
 const DAYS: DayOfWeek[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -309,7 +310,7 @@ const Timetable: React.FC = () => {
       {isFacultyOrMentor && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 space-y-4">
-            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5">
+            <PremiumCard index={0} interactive="subtle" className="border-primary/20 bg-primary/5 p-5">
               <h3 className="text-lg font-heading font-semibold text-primary flex items-center gap-2 mb-3">
                 <Bell className="w-5 h-5" /> Today's Schedule
               </h3>
@@ -332,14 +333,14 @@ const Timetable: React.FC = () => {
               ) : (
                 <p className="text-sm text-muted-foreground italic">No classes today.</p>
               )}
-            </div>
-            <div className="rounded-2xl border border-border bg-card p-5">
+            </PremiumCard>
+            <PremiumCard index={1} interactive="subtle" className="p-5">
               <h3 className="text-sm font-heading font-semibold flex items-center gap-2 mb-4"><Info className="w-4 h-4 text-muted-foreground" /> Schedule Info</h3>
               <div className="space-y-3 text-xs">
                 <div className="flex justify-between"><span className="text-muted-foreground">Weekly Load</span><span className="font-medium">{myEntries.length} Classes</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Active Sections</span><span className="font-medium text-primary">{new Set(myEntries.map(e => e.section_id)).size} Sections</span></div>
               </div>
-            </div>
+            </PremiumCard>
           </div>
           <div className="lg:col-span-2">
             <TimetableGrid entries={myEntries} isAdmin={false} onEdit={openEdit} onDelete={handleDelete} />
@@ -359,7 +360,7 @@ const TimetableGrid: React.FC<{
   entries: TimetableEntry[]; isAdmin: boolean;
   onEdit: (e: TimetableEntry) => void; onDelete: (id: string) => void;
 }> = ({ entries, isAdmin, onEdit, onDelete }) => (
-  <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
+  <PremiumCard index={2} interactive={false} className="overflow-hidden">
     <div className="overflow-x-auto">
       <table className="w-full border-collapse">
         <thead>
@@ -385,7 +386,7 @@ const TimetableGrid: React.FC<{
                   <td key={day} className="p-2 border-r border-border/50 min-h-[120px] align-top">
                     <div className="space-y-2">
                       {items.map(entry => (
-                        <div key={entry.id} className="group relative p-3 rounded-xl border bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-md hover:border-primary/40 transition-all">
+                        <div key={entry.id} className="group relative p-3 rounded-xl border bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-lg hover:border-primary/40 hover:-translate-y-1 transition-all duration-300">
                           <div className="flex justify-between items-start mb-1">
                             <p className="font-bold text-xs truncate">{entry.section_name}</p>
                             {isAdmin && (
@@ -398,7 +399,7 @@ const TimetableGrid: React.FC<{
                           <p className="text-[10px] text-primary font-bold mb-2">{entry.subject}</p>
                           <div className="space-y-1.5 mb-2">
                             <div className="flex items-center gap-1.5 text-[9px]">
-                              <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-blue-50" />
                               <span className="text-muted-foreground">Faculty:</span>
                               <span className="font-medium truncate">{entry.faculty_name}</span>
                             </div>
@@ -426,7 +427,7 @@ const TimetableGrid: React.FC<{
         </tbody>
       </table>
     </div>
-  </div>
+  </PremiumCard>
 );
 
 export default Timetable;

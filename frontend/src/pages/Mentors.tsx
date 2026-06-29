@@ -11,13 +11,14 @@ import {
 import { Plus, Mail, BookOpen, Users, Trash2, Pencil, AlertTriangle, FileUp, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { PremiumCard } from '@/components/ui/premium-card';
 
 /* ─── Mentor Card ─── */
 const MentorCard: React.FC<{
   mentor: User; badgeVariant: 'faculty' | 'mentor'; badgeLabel: string;
-  isAdmin: boolean; onEdit: (m: User) => void; onRemove: (m: User) => void;
-}> = ({ mentor, badgeVariant, badgeLabel, isAdmin, onEdit, onRemove }) => (
-  <div className="rounded-xl border border-border bg-card p-5 hover:shadow-md transition-shadow animate-fade-in">
+  isAdmin: boolean; onEdit: (m: User) => void; onRemove: (m: User) => void; index?: number;
+}> = ({ mentor, badgeVariant, badgeLabel, isAdmin, onEdit, onRemove, index = 0 }) => (
+  <PremiumCard index={index} className="p-6">
     <div className="flex items-start justify-between mb-3">
       <div className="flex items-center gap-3">
         <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-lg font-bold text-primary font-heading">
@@ -46,7 +47,7 @@ const MentorCard: React.FC<{
         </Button>
       </div>
     )}
-  </div>
+  </PremiumCard>
 );
 
 type MentorType = 'faculty' | 'student_mentor';
@@ -313,7 +314,7 @@ const Mentors: React.FC = () => {
         </div>
         {facultyMentors.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {facultyMentors.map(m => <MentorCard key={m.id} mentor={m} isAdmin={isAdmin} badgeVariant="faculty" badgeLabel="Faculty Mentor" onEdit={openEdit} onRemove={openRemove} />)}
+            {facultyMentors.map((m, i) => <MentorCard key={m.id} index={i} mentor={m} isAdmin={isAdmin} badgeVariant="faculty" badgeLabel="Faculty Mentor" onEdit={openEdit} onRemove={openRemove} />)}
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-border p-8 text-center text-muted-foreground text-sm">No faculty mentors found.</div>
@@ -331,7 +332,7 @@ const Mentors: React.FC = () => {
         </div>
         {studentMentors.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {studentMentors.map(m => <MentorCard key={m.id} mentor={m} isAdmin={isAdmin} badgeVariant="mentor" badgeLabel="Student Mentor" onEdit={openEdit} onRemove={openRemove} />)}
+            {studentMentors.map((m, i) => <MentorCard key={m.id} index={i} mentor={m} isAdmin={isAdmin} badgeVariant="mentor" badgeLabel="Student Mentor" onEdit={openEdit} onRemove={openRemove} />)}
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-border p-8 text-center text-muted-foreground text-sm">No student mentors found.</div>

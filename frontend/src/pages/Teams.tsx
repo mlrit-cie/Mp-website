@@ -10,6 +10,7 @@ import { Plus, Users, Mail, Phone, Github, Linkedin, Crown, Download, Loader2 } 
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { useMentor } from '@/hooks/useMentor';
+import { PremiumCard } from '@/components/ui/premium-card';
 
 /* ─── Student view: shows their own team ─── */
 const StudentTeamView: React.FC = () => {
@@ -85,7 +86,7 @@ const StudentTeamView: React.FC = () => {
         <h1 className="text-2xl font-heading font-bold">My Team</h1>
         <p className="text-muted-foreground text-sm mt-1">Your team details</p>
       </div>
-      <div className="rounded-xl border border-border bg-card p-6">
+      <PremiumCard interactive="subtle" className="p-6 md:p-8">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
             <Users className="w-6 h-6 text-primary" />
@@ -129,7 +130,7 @@ const StudentTeamView: React.FC = () => {
             </div>
           ))}
         </div>
-      </div>
+      </PremiumCard>
     </div>
   );
 };
@@ -213,8 +214,8 @@ const AdminTeamsView: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filtered.map(team => (
-          <div key={team.id} className="rounded-xl border border-border bg-card p-5 hover:shadow-md transition-shadow animate-fade-in">
+        {filtered.map((team, i) => (
+          <PremiumCard key={team.id} index={i} className="p-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -234,7 +235,7 @@ const AdminTeamsView: React.FC = () => {
             <p className="text-xs text-muted-foreground">
               <span className="font-medium">Members:</span> {team.member_names || '—'}
             </p>
-          </div>
+          </PremiumCard>
         ))}
         {filtered.length === 0 && (
           <p className="text-sm text-muted-foreground col-span-2 text-center py-8">No teams found</p>
@@ -368,8 +369,8 @@ const MentorTeamsView: React.FC = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {currentSectionTeams.map(team => (
-          <div key={team.id} className="rounded-xl border border-border bg-card p-5 hover:shadow-md transition-shadow animate-fade-in">
+        {currentSectionTeams.map((team, i) => (
+          <PremiumCard key={team.id} index={i} className="p-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -385,7 +386,7 @@ const MentorTeamsView: React.FC = () => {
             <div className="p-3 rounded-lg bg-muted/30 border border-border/50">
               <p className="text-sm font-medium">{team.project_title || 'No Project Started'}</p>
             </div>
-          </div>
+          </PremiumCard>
         ))}
         {currentSectionTeams.length === 0 && (
           <div className="col-span-2 rounded-xl border border-dashed border-border p-10 text-center">

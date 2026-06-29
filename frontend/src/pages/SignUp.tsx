@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { GraduationCap, Eye, EyeOff, UserPlus, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { UserRole } from "@/lib/types";
+import { PremiumCard } from "@/components/ui/premium-card";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -141,11 +142,10 @@ const SignUp = () => {
 
       {/* Right panel - Registration Form */}
       <div className="flex-1 flex items-center justify-center p-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md space-y-6 glass-panel p-8 md:p-10 rounded-3xl"
+        <PremiumCard
+          index={0}
+          interactive={false}
+          className="w-full max-w-md space-y-6 p-8 md:p-10"
         >
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 justify-center mb-4">
@@ -188,6 +188,7 @@ const SignUp = () => {
                 value={formData.name}
                 onChange={handleChange}
                 required
+                className="border-white/10 bg-white/[0.02] text-white focus-visible:ring-primary focus-visible:ring-offset-background placeholder:text-white/30 rounded-xl"
               />
             </div>
 
@@ -201,6 +202,7 @@ const SignUp = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                className="border-white/10 bg-white/[0.02] text-white focus-visible:ring-primary focus-visible:ring-offset-background placeholder:text-white/30 rounded-xl"
               />
             </div>
 
@@ -230,6 +232,7 @@ const SignUp = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
+                  className="border-white/10 bg-white/[0.02] text-white focus-visible:ring-primary focus-visible:ring-offset-background placeholder:text-white/30 rounded-xl pr-10"
                 />
                 <button
                   type="button"
@@ -253,6 +256,7 @@ const SignUp = () => {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
+                  className="border-white/10 bg-white/[0.02] text-white focus-visible:ring-primary focus-visible:ring-offset-background placeholder:text-white/30 rounded-xl pr-10"
                 />
                 <button
                   type="button"
@@ -293,7 +297,7 @@ const SignUp = () => {
               Sign In
             </Link>
           </div>
-        </motion.div>
+        </PremiumCard>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import AppSidebar from '@/components/AppSidebar';
+import { PremiumCard } from '@/components/ui/premium-card';
 import {
   Search, Github, Users, Loader2, ChevronLeft, ChevronRight,
   Archive as ArchiveIcon, LogIn, Layers, Sparkles, ArrowUpDown,
@@ -219,11 +220,12 @@ const ArchivePage: React.FC = () => {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {pageSlice.map(p => (
-              <article
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {pageSlice.map((p, i) => (
+              <PremiumCard
                 key={p.id}
-                className="rounded-xl border border-border bg-card p-5 hover:shadow-md hover:border-primary/30 transition-all animate-fade-in flex flex-col"
+                index={i}
+                className="p-6 flex flex-col"
               >
                 {/* Header: title + status */}
                 <div className="flex items-start justify-between gap-3 mb-2">
@@ -289,7 +291,7 @@ const ArchivePage: React.FC = () => {
                     </div>
                   )}
                 </div>
-              </article>
+              </PremiumCard>
             ))}
           </div>
         )}

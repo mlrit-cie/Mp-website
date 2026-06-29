@@ -10,6 +10,7 @@ import { useProjects } from '@/hooks/useProjects';
 import { toast } from '@/hooks/use-toast';
 import FileUpload from '@/components/FileUpload';
 import { exportToExcel } from '@/lib/export';
+import { PremiumCard } from '@/components/ui/premium-card';
 
 const NEXT_STATUS: Record<string, Record<string, string>> = {
   student: { 'Draft': 'Student Mentor Review' },
@@ -110,7 +111,7 @@ const Projects: React.FC = () => {
           <p className="text-muted-foreground text-sm mt-1">Your project details and submission status</p>
         </div>
 
-        <div className="rounded-xl border border-border bg-card p-6 space-y-5">
+        <PremiumCard interactive="subtle" className="p-6 md:p-8 space-y-5">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-heading font-semibold">{project.title || 'Untitled Project'}</h2>
@@ -232,7 +233,7 @@ const Projects: React.FC = () => {
               Submit for Mentor Review <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           )}
-        </div>
+        </PremiumCard>
       </div>
     );
   }
@@ -252,7 +253,7 @@ const Projects: React.FC = () => {
         )}
       </div>
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <PremiumCard interactive={false} className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -306,7 +307,7 @@ const Projects: React.FC = () => {
             </tbody>
           </table>
         </div>
-      </div>
+      </PremiumCard>
     </div>
   );
 };

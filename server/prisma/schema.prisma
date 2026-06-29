@@ -1,0 +1,383 @@
+// MLRIT Project Hub — Prisma schema (Phase 1: full data model)
+//
+// Implements BACKEND_BLUEPRINT.md §2–§3. Standalone PostgreSQL backend (no Supabase).
+//
+// Conventions:
+// - Model fields are camelCase; physical columns/tables are snake_case via @map/@@map.
+// - PKs are UUID strings (matches the frontend's `id: string` types).
+// - Array columns from the old Supabase design are normalized into join tables
+//   (SectionMentor, TeamMember, TimetableMentor).
+// - Workflow/role enums map to their exact display strings so the API ↔ DB
+//   mapping stays trivial and matches the frontend's string unions.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ────────────────────────────── Enums ──────────────────────────────
+
+enum UserRole {
+  admin
+  faculty
+  student_mentor
+  student
+}
+
+enum ProjectStatus {
+  DRAFT                 @map("Draft")
+  STUDENT_MENTOR_REVIEW @map("Student Mentor Review")
+  FACULTY_REVIEW        @map("Faculty Review")
+  APPROVED              @map("Approved")
+  SUBMITTED_TO_CIE      @map("Submitted to CIE")
+  COMPLETED             @map("Completed")
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  late
+}
+
+enum NotificationType {
+  announcement
+  project_status
+  project_feedback
+  team_assignment
+  mentor_assignment
+  deadline
+}
+
+enum TargetAudience {
+  all
+  mentors_only
+}
+
+enum SectionMentorRole {
+  faculty
+  student_mentor
+}
+
+enum FileKind {
+  ppt
+  report
+  yukthi
+  other
+}
+
+enum DayOfWeek {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+}
+
+// ────────────────────────────── Models ─────────────────────────────
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String?  @map("password_hash") // null for OAuth-only accounts
+  role         UserRole @default(student)
+  approved     Boolean  @default(false)
+
+  sectionId  String? @map("section_id") // a student belongs to one section
+  department String?
+  rollNumber String? @map("roll_number")
+  phone      String?
+  githubLink String? @map("github_link")
+  linkedinLink String? @map("linkedin_link")
+  avatar     String?
+  googleSub  String? @unique @map("google_sub") // OAuth subject (later phase)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  section            Section?               @relation("SectionStudents", fields: [sectionId], references: [id])
+  sectionMentors     SectionMentor[]
+  teamsLed           Team[]                 @relation("TeamLead")
+  teamsCreated       Team[]                 @relation("TeamCreatedBy")
+  teamMemberships    TeamMember[]
+  projectsMentored   Project[]              @relation("ProjectMentor")
+  statusChanges      ProjectStatusHistory[]
+  filesUploaded      File[]
+  announcements      Announcement[]
+  attendanceRecords  Attendance[]           @relation("AttendanceSubject")
+  attendanceMarked   Attendance[]           @relation("AttendanceMarkedBy")
+  timetableFaculty   Timetable[]            @relation("TimetableFaculty")
+  timetableMentors   TimetableMentor[]
+  weeklyUpdates      WeeklyUpdate[]
+  notifications      Notification[]
+  refreshTokens      RefreshToken[]
+
+  @@index([role])
+  @@index([sectionId])
+  @@map("users")
+}
+
+model Section {
+  id           String   @id @default(uuid())
+  name         String
+  department   String   @default("CSE")
+  year         Int?
+  academicYear String?  @map("academic_year")
+  semester     String?
+  studentCount Int      @default(0) @map("student_count")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  mentors    SectionMentor[]
+  teams      Team[]
+  projects   Project[]
+  timetables Timetable[]
+  students   User[]          @relation("SectionStudents")
+
+  @@map("sections")
+}
+
+// 1 faculty + 3–4 student mentors per section (count enforced in the service layer).
+model SectionMentor {
+  sectionId      String            @map("section_id")
+  userId         String            @map("user_id")
+  roleInSection  SectionMentorRole @map("role_in_section")
+  createdAt      DateTime          @default(now()) @map("created_at")
+
+  section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([sectionId, userId])
+  @@index([userId])
+  @@map("section_mentors")
+}
+
+model Team {
+  id        String  @id @default(uuid())
+  name      String
+  sectionId String  @map("section_id")
+  leadId    String? @map("lead_id")
+  createdBy String? @map("created_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  section       Section      @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  lead          User?        @relation("TeamLead", fields: [leadId], references: [id])
+  createdByUser User?        @relation("TeamCreatedBy", fields: [createdBy], references: [id])
+  members       TeamMember[]
+  project       Project?     // default project per team (1:1)
+  files         File[]
+
+  @@index([sectionId])
+  @@map("teams")
+}
+
+model TeamMember {
+  teamId    String   @map("team_id")
+  studentId String   @map("student_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  team    Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, studentId])
+  @@index([studentId])
+  @@map("team_members")
+}
+
+model Project {
+  id           String        @id @default(uuid())
+  title        String        @default("Untitled Project")
+  domain       String?
+  abstract     String?
+  githubLink   String?       @map("github_link")
+  videoLink    String?       @map("video_link")
+  feedback     String?
+  deadline     DateTime?
+  status       ProjectStatus @default(DRAFT)
+  teamId       String        @unique @map("team_id") // one project per team
+  sectionId    String        @map("section_id")
+  mentorId     String?       @map("mentor_id")
+  academicYear String?       @map("academic_year")
+  semester     String?
+
+  pptFileId    String? @unique @map("ppt_file_id")
+  reportFileId String? @unique @map("report_file_id")
+  yukthiFileId String? @unique @map("yukthi_file_id")
+
+  submittedAt DateTime? @map("submitted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  team          Team                   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  section       Section                @relation(fields: [sectionId], references: [id])
+  mentor        User?                  @relation("ProjectMentor", fields: [mentorId], references: [id])
+  pptFile       File?                  @relation("ProjectPpt", fields: [pptFileId], references: [id])
+  reportFile    File?                  @relation("ProjectReport", fields: [reportFileId], references: [id])
+  yukthiFile    File?                  @relation("ProjectYukthi", fields: [yukthiFileId], references: [id])
+  statusHistory ProjectStatusHistory[]
+
+  @@index([sectionId])
+  @@index([status])
+  @@map("projects")
+}
+
+model ProjectStatusHistory {
+  id         String         @id @default(uuid())
+  projectId  String         @map("project_id")
+  fromStatus ProjectStatus? @map("from_status")
+  toStatus   ProjectStatus  @map("to_status")
+  changedBy  String         @map("changed_by")
+  note       String?
+  changedAt  DateTime       @default(now()) @map("changed_at")
+
+  project       Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  changedByUser User    @relation(fields: [changedBy], references: [id])
+
+  @@index([projectId])
+  @@map("project_status_history")
+}
+
+model File {
+  id           String   @id @default(uuid())
+  teamId       String?  @map("team_id")
+  kind         FileKind @default(other)
+  originalName String   @map("original_name")
+  storageKey   String   @map("storage_key") // path/object key (local disk now, S3/MinIO later)
+  mimeType     String   @map("mime_type")
+  sizeBytes    Int      @map("size_bytes")
+  uploadedBy   String   @map("uploaded_by")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  team           Team?    @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  uploadedByUser User     @relation(fields: [uploadedBy], references: [id])
+  // back-relations for the three project file slots (one project at most per slot)
+  pptForProject    Project? @relation("ProjectPpt")
+  reportForProject Project? @relation("ProjectReport")
+  yukthiForProject Project? @relation("ProjectYukthi")
+
+  @@index([teamId])
+  @@map("files")
+}
+
+model Announcement {
+  id             String         @id @default(uuid())
+  title          String
+  content        String
+  authorId       String         @map("author_id")
+  targetAudience TargetAudience @default(all) @map("target_audience")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@map("announcements")
+}
+
+model Attendance {
+  id             String           @id @default(uuid())
+  userId         String           @map("user_id")
+  attendanceDate DateTime         @map("attendance_date") @db.Date
+  status         AttendanceStatus
+  notes          String?
+  markedBy       String?          @map("marked_by")
+  markedAt       DateTime         @default(now()) @map("marked_at")
+
+  user         User  @relation("AttendanceSubject", fields: [userId], references: [id], onDelete: Cascade)
+  markedByUser User? @relation("AttendanceMarkedBy", fields: [markedBy], references: [id])
+
+  @@unique([userId, attendanceDate])
+  @@map("attendance")
+}
+
+model Timetable {
+  id          String    @id @default(uuid())
+  sectionId   String    @map("section_id")
+  dayOfWeek   DayOfWeek @map("day_of_week")
+  startTime   String    @map("start_time") // "HH:MM"
+  endTime     String    @map("end_time")
+  subject     String?
+  roomNumber  String?   @map("room_number")
+  facultyId   String?   @map("faculty_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  section Section           @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  faculty User?             @relation("TimetableFaculty", fields: [facultyId], references: [id])
+  mentors TimetableMentor[]
+
+  @@index([sectionId])
+  @@index([facultyId])
+  @@map("timetable")
+}
+
+model TimetableMentor {
+  timetableId String @map("timetable_id")
+  userId      String @map("user_id")
+
+  timetable Timetable @relation(fields: [timetableId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([timetableId, userId])
+  @@index([userId])
+  @@map("timetable_mentors")
+}
+
+model WeeklyUpdate {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  weekStarting DateTime @map("week_starting") @db.Date
+  content      String
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, weekStarting])
+  @@map("weekly_updates")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  title     String
+  message   String
+  link      String?
+  readAt    DateTime?        @map("read_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("notifications")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @map("token_hash")
+  userAgent String?   @map("user_agent")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}

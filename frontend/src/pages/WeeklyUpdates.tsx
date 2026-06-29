@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ClipboardList, Plus, Save, Trash2, Loader2, Search } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { PremiumCard } from '@/components/ui/premium-card';
 
 interface UpdateRow {
   id: number;
@@ -126,7 +127,7 @@ const WeeklyUpdates: React.FC = () => {
 
       {/* Compose (mentors only) */}
       {canWrite && (
-        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <PremiumCard index={0} interactive={false} className="p-5 space-y-4">
           <div className="flex items-center gap-2">
             <Plus className="w-4 h-4 text-primary" />
             <h2 className="font-heading font-semibold text-sm">New / Update Entry</h2>
@@ -154,11 +155,11 @@ const WeeklyUpdates: React.FC = () => {
               Save (upserts this week)
             </Button>
           </div>
-        </div>
+        </PremiumCard>
       )}
 
       {/* Feed */}
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <PremiumCard index={1} interactive={false} className="overflow-hidden">
         <div className="p-3 border-b border-border flex items-center gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
@@ -205,7 +206,7 @@ const WeeklyUpdates: React.FC = () => {
             ))}
           </ul>
         )}
-      </div>
+      </PremiumCard>
     </div>
   );
 };

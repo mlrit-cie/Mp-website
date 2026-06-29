@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { useAnnouncements } from '@/hooks/useAnnouncements';
+import { PremiumCard } from '@/components/ui/premium-card';
 
 const Announcements: React.FC = () => {
   const { user } = useAuth();
@@ -182,10 +183,12 @@ const Announcements: React.FC = () => {
       {/* Announcement List */}
       {!loading && !error && (
         <div className="space-y-4">
-          {announcements.map(a => (
-            <div
+          {announcements.map((a, i) => (
+            <PremiumCard
               key={a.id}
-              className="rounded-xl border border-border bg-card p-6 animate-fade-in"
+              index={i}
+              interactive="subtle"
+              className="p-6"
             >
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -227,7 +230,7 @@ const Announcements: React.FC = () => {
                   <p className="text-xs text-muted-foreground mt-3">— {a.author}</p>
                 </div>
               </div>
-            </div>
+            </PremiumCard>
           ))}
 
           {announcements.length === 0 && (

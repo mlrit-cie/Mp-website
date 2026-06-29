@@ -4,7 +4,7 @@ import { User, UserRole } from '@/lib/types';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  login: (email: string, password: string, role?: UserRole) => Promise<{ success: boolean; message?: string }>;
   register: (name: string, email: string, password: string, role?: UserRole) => Promise<{ success: boolean; message?: string }>;
   loginWithGoogle: () => Promise<void>;
   completeGoogleLogin: () => Promise<{ success: boolean; message?: string }>;
@@ -112,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   /* ── Login (email + password via Supabase Auth) ── */
-  const login = async (email: string, password: string): Promise<{ success: boolean; message?: string }> => {
+  const login = async (email: string, password: string, role?: UserRole): Promise<{ success: boolean; message?: string }> => {
     try {
       // MOCK LOGIN - Remove this when Supabase is connected
       const normalizedEmail = email.trim().toLowerCase();
@@ -120,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: '1',
         name: normalizedEmail.split('@')[0],
         email: normalizedEmail,
-        role: getRoleFromEmail(normalizedEmail),
+        role: role || getRoleFromEmail(normalizedEmail),
         approved: true,
       };
       persist(mockUser);

@@ -59,7 +59,7 @@ const AppRoutes = () => {
   
   return (
     <Routes>
-      <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Index />} />
+      <Route path="/" element={<Index />} />
       <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
       <Route path="/signup" element={user ? <Navigate to="/dashboard" replace /> : <SignUp />} />
       <Route path="/auth/callback" element={<AuthCallback />} />

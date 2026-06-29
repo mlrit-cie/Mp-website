@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { Layers, FileCheck, Clock, CheckCircle, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useMentor } from '@/hooks/useMentor';
+import { PremiumCard } from '@/components/ui/premium-card';
 
 const FacultyDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -48,13 +49,13 @@ const FacultyDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard title="Assigned Sections" value={assignedSections.length} icon={<Layers className="w-5 h-5" />} variant="blue" />
-            <StatCard title="Total Teams" value={currentSectionTeams.length} icon={<FileCheck className="w-5 h-5" />} variant="green" />
-            <StatCard title="Pending Reviews" value={pendingReviews} icon={<Clock className="w-5 h-5" />} variant="red" />
-            <StatCard title="Approved" value={approved} icon={<CheckCircle className="w-5 h-5" />} variant="green" />
+            <StatCard index={0} title="Assigned Sections" value={assignedSections.length} icon={<Layers className="w-5 h-5" />} variant="blue" />
+            <StatCard index={1} title="Total Teams" value={currentSectionTeams.length} icon={<FileCheck className="w-5 h-5" />} variant="green" />
+            <StatCard index={2} title="Pending Reviews" value={pendingReviews} icon={<Clock className="w-5 h-5" />} variant="red" />
+            <StatCard index={3} title="Approved" value={approved} icon={<CheckCircle className="w-5 h-5" />} variant="green" />
           </div>
 
-          <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+          <PremiumCard index={0} interactive="subtle" className="p-6 relative overflow-hidden">
             <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
             <h3 className="font-heading font-semibold mb-4 text-white">Projects Pending Review</h3>
             {loading ? (
@@ -76,11 +77,11 @@ const FacultyDashboard: React.FC = () => {
                 {assignedSections.length === 0 ? 'No sections assigned yet' : 'No pending reviews'}
               </p>
             )}
-          </div>
+          </PremiumCard>
         </div>
 
         <div className="lg:col-span-1 space-y-4">
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 backdrop-blur-xl">
+          <PremiumCard index={1} interactive="subtle" className="border-primary/20 bg-primary/5 p-5">
             <h3 className="text-sm font-heading font-bold text-primary flex items-center gap-2 mb-3">
               <Calendar className="w-4 h-4" /> Today's Schedule
             </h3>
@@ -102,7 +103,7 @@ const FacultyDashboard: React.FC = () => {
             <Link to="/timetable" className="block text-center text-[10px] font-bold text-primary mt-4 hover:underline">
               View Full Timetable
             </Link>
-          </div>
+          </PremiumCard>
         </div>
       </div>
     </div>

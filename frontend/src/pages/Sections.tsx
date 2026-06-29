@@ -11,6 +11,7 @@ import { Plus, Users, UserCheck, Pencil, Trash2, AlertTriangle, Search, Mail, Bo
 import { useAuth } from '@/contexts/AuthContext';
 import { exportToExcel } from '@/lib/export';
 import { toast } from '@/hooks/use-toast';
+import { PremiumCard } from '@/components/ui/premium-card';
 
 type DialogMode = 'add' | 'edit' | 'remove' | null;
 
@@ -462,8 +463,8 @@ const Sections: React.FC = () => {
 
       {/* ═══════ Section Cards ═══════ */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {sections.map(section => (
-          <div key={section.id} className="rounded-xl border border-border bg-card p-5 hover:shadow-md transition-shadow animate-fade-in flex flex-col">
+        {sections.map((section, i) => (
+          <PremiumCard key={section.id} index={i} className="p-6 flex flex-col">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h3 className="font-heading font-semibold text-lg leading-tight">{section.name}</h3>
@@ -532,7 +533,7 @@ const Sections: React.FC = () => {
                 </div>
               )}
             </div>
-          </div>
+          </PremiumCard>
         ))}
         {sections.length === 0 && (
           <div className="rounded-xl border border-dashed border-border p-8 text-center text-muted-foreground text-sm col-span-3">

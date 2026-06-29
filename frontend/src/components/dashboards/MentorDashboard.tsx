@@ -7,6 +7,7 @@ import { FolderKanban, FileCheck, Clock, Users, Calendar, Layers, Megaphone, Act
 import { Link } from 'react-router-dom';
 import { useMentor } from '@/hooks/useMentor';
 import { useAnnouncements } from '@/hooks/useAnnouncements';
+import { PremiumCard } from '@/components/ui/premium-card';
 
 const MentorDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -72,14 +73,14 @@ const MentorDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard title="My Teams" value={currentSectionTeams.length} icon={<FolderKanban className="w-5 h-5" />} variant="green" />
-            <StatCard title="Assigned Sections" value={assignedSections.length} icon={<Users className="w-5 h-5" />} variant="blue" />
-            <StatCard title="Pending Reviews" value={pendingReviews} icon={<Clock className="w-5 h-5" />} variant="red" />
-            <StatCard title="Section" value={assignedSections[0]?.name || '—'} icon={<FileCheck className="w-5 h-5" />} variant="green" />
+            <StatCard index={0} title="My Teams" value={currentSectionTeams.length} icon={<FolderKanban className="w-5 h-5" />} variant="green" />
+            <StatCard index={1} title="Assigned Sections" value={assignedSections.length} icon={<Users className="w-5 h-5" />} variant="blue" />
+            <StatCard index={2} title="Pending Reviews" value={pendingReviews} icon={<Clock className="w-5 h-5" />} variant="red" />
+            <StatCard index={3} title="Section" value={assignedSections[0]?.name || '—'} icon={<FileCheck className="w-5 h-5" />} variant="green" />
           </div>
 
           {/* Assigned sections list */}
-          <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+          <PremiumCard index={0} interactive="subtle" className="p-6 relative overflow-hidden">
             <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
             <div className="flex items-center gap-2 mb-4">
               <Layers className="w-4 h-4 text-primary" />
@@ -104,10 +105,10 @@ const MentorDashboard: React.FC = () => {
             ) : (
               <p className="text-sm text-muted-foreground text-center py-6">No sections assigned to you yet</p>
             )}
-          </div>
+          </PremiumCard>
 
           {/* Weekly updates: recent project changes + recent announcements */}
-          <div className="glass-card rounded-xl p-6 relative overflow-hidden">
+          <PremiumCard index={1} interactive="subtle" className="p-6 relative overflow-hidden">
             <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
             <div className="flex items-center gap-2 mb-4">
               <Activity className="w-4 h-4 text-primary" />
@@ -144,9 +145,9 @@ const MentorDashboard: React.FC = () => {
                 ))}
               </div>
             )}
-          </div>
+          </PremiumCard>
 
-          <div className="glass-card rounded-xl p-6">
+          <PremiumCard index={2} interactive="subtle" className="p-6">
             <h3 className="font-heading font-semibold mb-4 text-white">Teams Overview</h3>
             {loading ? (
               <p className="text-sm text-muted-foreground text-center py-6">Loading teams...</p>
@@ -168,11 +169,11 @@ const MentorDashboard: React.FC = () => {
                 {assignedSections.length === 0 ? 'No sections assigned yet' : 'No teams in your section yet'}
               </p>
             )}
-          </div>
+          </PremiumCard>
         </div>
 
         <div className="lg:col-span-1 space-y-4">
-          <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 backdrop-blur-xl">
+          <PremiumCard index={3} interactive="subtle" className="border-primary/20 bg-primary/5 p-5">
             <h3 className="text-sm font-heading font-bold text-primary flex items-center gap-2 mb-3">
               <Calendar className="w-4 h-4" /> Today's Schedule
             </h3>
@@ -194,7 +195,7 @@ const MentorDashboard: React.FC = () => {
             <Link to="/timetable" className="block text-center text-[10px] font-bold text-primary mt-4 hover:underline">
               View Full Timetable
             </Link>
-          </div>
+          </PremiumCard>
         </div>
       </div>
     </div>

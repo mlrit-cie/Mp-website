@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   LayoutDashboard, Users, Layers, FolderKanban, FileCheck,
@@ -68,7 +68,7 @@ const AppSidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
       collapsed ? "w-[68px]" : "w-64"
     )}>
       {/* Logo */}
-      <div className="p-4 flex items-center gap-3 border-b border-white/5">
+      <Link to="/" className="p-4 flex items-center gap-3 border-b border-white/5 hover:bg-white/5 transition-all duration-200">
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/10">
           <GraduationCap className="w-5 h-5 text-white" />
         </div>
@@ -78,7 +78,7 @@ const AppSidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
             <p className="text-[10px] text-sidebar-muted">MLRIT Portal</p>
           </div>
         )}
-      </div>
+      </Link>
 
       {/* User info */}
       {!collapsed && user && (
