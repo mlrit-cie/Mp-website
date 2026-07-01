@@ -1,31 +1,42 @@
 /**
- * Database access layer.
+ * Database access layer — the real PrismaClient singleton.
  *
- * Phase 0 (scaffolding): Prisma is NOT instantiated yet because the schema has
- * no models (`prisma generate` needs at least one). The DB probe therefore
- * reports "not configured" so the server boots and serves health checks.
+ * Public surface (`prisma`, `checkDatabase`, `disconnectPrisma`) is unchanged from
+ * the Phase-0 stub, so `server.ts` and the health module don't need edits.
  *
- * Phase 2 (database schema & models) will replace this file with the real
- * PrismaClient singleton — the public surface (`checkDatabase`,
- * `disconnectPrisma`) stays the same so nothing downstream changes:
- *
- *   import { PrismaClient } from '@prisma/client';
- *   export const prisma = new PrismaClient({ log: env.isDev ? ['warn','error'] : ['error'] });
- *   export async function checkDatabase() {
- *     try { await prisma.$queryRaw`SELECT 1`; return { configured: true, up: true }; }
- *     catch { return { configured: true, up: false }; }
- *   }
+ * A single client is reused across the process; in dev we stash it on `globalThis`
+ * so tsx/nodemon hot-reloads don't open a new connection pool on every reload.
  */
+
+import { PrismaClient } from '@prisma/client';
+import { env } from '../config/env';
+
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: env.isDev ? ['warn', 'error'] : ['error'],
+  });
+
+if (env.isDev) globalForPrisma.prisma = prisma;
 
 export interface DatabaseStatus {
   configured: boolean;
   up: boolean;
 }
 
+/** Lightweight liveness probe used by the health endpoint. */
 export async function checkDatabase(): Promise<DatabaseStatus> {
-  return { configured: false, up: false };
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    return { configured: true, up: true };
+  } catch {
+    // Client is wired, but the DB isn't reachable yet (e.g. no Postgres running).
+    return { configured: true, up: false };
+  }
 }
 
 export async function disconnectPrisma(): Promise<void> {
-  // no-op until Prisma is wired in Phase 2
+  await prisma.$disconnect();
 }
