@@ -7,7 +7,7 @@ import 'express';
 declare global {
   namespace Express {
     interface AuthenticatedUser {
-      id: number;
+      id: string; // UUID (matches Prisma String @id)
       role: 'admin' | 'faculty' | 'student_mentor' | 'student';
       approved: boolean;
       email: string;
