@@ -7,8 +7,12 @@
 // - PKs are UUID strings (matches the frontend's `id: string` types).
 // - Array columns from the old Supabase design are normalized into join tables
 //   (SectionMentor, TeamMember, TimetableMentor).
-// - Workflow/role enums map to their exact display strings so the API ↔ DB
-//   mapping stays trivial and matches the frontend's string unions.
+// - Enum values are stored as their KEYS (e.g. STUDENT_MENTOR_REVIEW). The API
+//   converts ProjectStatus keys ↔ the frontend's display labels ("Student Mentor
+//   Review") in one place: src/lib/projectStatus.ts. (Storing the key keeps Prisma
+//   model reads and raw-SQL analytics consistent — a @map to the label would make
+//   them disagree, since Prisma Client returns the key but $queryRaw returns the
+//   stored value.)
 
 generator client {
   provider = "prisma-client-js"
@@ -29,12 +33,12 @@ enum UserRole {
 }
 
 enum ProjectStatus {
-  DRAFT                 @map("Draft")
-  STUDENT_MENTOR_REVIEW @map("Student Mentor Review")
-  FACULTY_REVIEW        @map("Faculty Review")
-  APPROVED              @map("Approved")
-  SUBMITTED_TO_CIE      @map("Submitted to CIE")
-  COMPLETED             @map("Completed")
+  DRAFT
+  STUDENT_MENTOR_REVIEW
+  FACULTY_REVIEW
+  APPROVED
+  SUBMITTED_TO_CIE
+  COMPLETED
 }
 
 enum AttendanceStatus {
@@ -370,7 +374,7 @@ model Notification {
 model RefreshToken {
   id        String    @id @default(uuid())
   userId    String    @map("user_id")
-  tokenHash String    @map("token_hash")
+  tokenHash String    @unique @map("token_hash")
   userAgent String?   @map("user_agent")
   expiresAt DateTime  @map("expires_at")
   revokedAt DateTime? @map("revoked_at")
