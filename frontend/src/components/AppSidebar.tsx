@@ -38,7 +38,7 @@ const AppSidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
 
   const navItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', roles: ['admin', 'faculty', 'student_mentor', 'student'] },
-    { to: '/sections', icon: Layers, label: 'Sections', roles: ['admin', 'faculty', 'student_mentor'] },
+    { to: '/sections', icon: Layers, label: 'Sections', roles: ['admin', 'faculty'] },
     { to: '/timetable', icon: Calendar, label: 'Time Table', roles: ['admin', 'faculty', 'student_mentor'] },
     { to: '/mentors', icon: Users, label: 'Mentors', roles: ['admin'] },
     { to: '/attendance', icon: ClipboardCheck, label: 'Attendance', roles: ['admin'] },
