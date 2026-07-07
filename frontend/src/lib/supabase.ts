@@ -1,9 +1,48 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co'
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key'
+const rawUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
+const rawKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+/**
+ * True only when a real Supabase project is configured. When it's not (env vars
+ * missing/commented out), we must NOT let requests fly at a dead placeholder
+ * host — those hang until a network timeout and freeze every page with an
+ * endless spinner.
+ */
+export const isSupabaseConfigured = Boolean(
+  rawUrl && rawKey && !rawUrl.includes('placeholder')
+)
+
+const supabaseUrl = rawUrl || 'https://placeholder.supabase.co'
+const supabaseAnonKey = rawKey || 'placeholder-key'
+
+/**
+ * Guarded fetch:
+ * - Not configured → resolve INSTANTLY with an empty result, so data hooks show
+ *   an empty state immediately instead of hanging (this is what makes the pages
+ *   fast again while there's no backend).
+ * - Configured → real fetch, but with an 8s timeout as a safety net so a slow/
+ *   paused backend can never freeze the UI indefinitely.
+ */
+const guardedFetch: typeof fetch = async (input, init) => {
+  if (!isSupabaseConfigured) {
+    return new Response('[]', {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 8000)
+  try {
+    return await fetch(input as RequestInfo, { ...init, signal: controller.signal })
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  global: { fetch: guardedFetch },
+})
 
 // Database types (you can generate these with Supabase CLI)
 export interface User {
