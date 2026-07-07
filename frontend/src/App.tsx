@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,23 +7,36 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { UserRole } from "@/lib/types";
 import PendingApprovalScreen from "@/components/PendingApprovalScreen";
-import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
-import AuthCallback from "./pages/AuthCallback";
-import Index from "./pages/Index";
 import DashboardLayout from "./layouts/DashboardLayout";
-import Dashboard from "./pages/Dashboard";
-import Sections from "./pages/Sections";
-import Mentors from "./pages/Mentors";
-import Teams from "./pages/Teams";
-import Projects from "./pages/Projects";
-import Announcements from "./pages/Announcements";
-import ArchivePage from "./pages/Archive";
-import Profile from "./pages/Profile";
-import Timetable from "./pages/Timetable";
-import Attendance from "./pages/Attendance";
-import WeeklyUpdates from "./pages/WeeklyUpdates";
-import NotFound from "./pages/NotFound";
+
+/**
+ * Pages are lazy-loaded so each route ships as its own chunk. This is what keeps
+ * the heavy 3D landing page (three / @react-three/fiber / drei via FloatingGallery)
+ * OUT of the bundle for every other page — they no longer pay for Three.js.
+ */
+const Login = lazy(() => import("./pages/Login"));
+const SignUp = lazy(() => import("./pages/SignUp"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
+const Index = lazy(() => import("./pages/Index")); // pulls in Three.js — now its own chunk
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Sections = lazy(() => import("./pages/Sections"));
+const Mentors = lazy(() => import("./pages/Mentors"));
+const Teams = lazy(() => import("./pages/Teams"));
+const Projects = lazy(() => import("./pages/Projects"));
+const Announcements = lazy(() => import("./pages/Announcements"));
+const ArchivePage = lazy(() => import("./pages/Archive"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Timetable = lazy(() => import("./pages/Timetable"));
+const Attendance = lazy(() => import("./pages/Attendance"));
+const WeeklyUpdates = lazy(() => import("./pages/WeeklyUpdates"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+/** Minimal fallback while a route chunk loads. */
+const PageLoader = () => (
+  <div className="w-full h-screen flex items-center justify-center bg-[#0a0a0c]">
+    <div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-emerald-500 animate-spin" />
+  </div>
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,6 +72,7 @@ const AppRoutes = () => {
   const { user } = useAuth();
   
   return (
+    <Suspense fallback={<PageLoader />}>
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
@@ -94,6 +109,7 @@ const AppRoutes = () => {
       
       <Route path="*" element={<NotFound />} />
     </Routes>
+    </Suspense>
   );
 };
 
