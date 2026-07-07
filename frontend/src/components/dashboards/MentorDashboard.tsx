@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { useMentor } from '@/hooks/useMentor';
 import { useAnnouncements } from '@/hooks/useAnnouncements';
 import { PremiumCard } from '@/components/ui/premium-card';
+import ComplaintsPanel from '@/components/ComplaintsPanel';
 
 const MentorDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -170,6 +171,9 @@ const MentorDashboard: React.FC = () => {
               </p>
             )}
           </PremiumCard>
+
+          {/* Student complaints raised via the student complaint box */}
+          <ComplaintsPanel index={4} />
         </div>
 
         <div className="lg:col-span-1 space-y-4">
