@@ -90,7 +90,7 @@ const AppRoutes = () => {
       
       <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/sections" element={<RoleGate roles={['admin', 'faculty', 'student_mentor']}><Sections /></RoleGate>} />
+        <Route path="/sections" element={<RoleGate roles={['admin', 'faculty']}><Sections /></RoleGate>} />
         <Route path="/mentors" element={<RoleGate roles={['admin']}><Mentors /></RoleGate>} />
         <Route path="/attendance" element={<RoleGate roles={['admin']}><Attendance /></RoleGate>} />
         <Route path="/weekly-updates" element={<RoleGate roles={['admin', 'faculty', 'student_mentor']}><WeeklyUpdates /></RoleGate>} />
