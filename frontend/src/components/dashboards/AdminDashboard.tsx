@@ -6,6 +6,7 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { useAnnouncements } from '@/hooks/useAnnouncements';
 import { ProjectStatus } from '@/lib/types';
 import { PremiumCard } from '@/components/ui/premium-card';
+import ComplaintsPanel from '@/components/ComplaintsPanel';
 
 const DOMAIN_COLORS = [
   'hsl(215, 80%, 55%)', 'hsl(145, 63%, 45%)', 'hsl(280, 60%, 55%)', 'hsl(38, 92%, 55%)',
@@ -151,6 +152,9 @@ const AdminDashboard: React.FC = () => {
           <p className="text-sm text-muted-foreground text-center py-6">No announcements yet</p>
         )}
       </PremiumCard>
+
+      {/* Student complaints raised via the student complaint box */}
+      <ComplaintsPanel index={4} />
     </div>
   );
 };
