@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { FolderKanban, FileCheck, Clock, ChevronRight, Users as UsersIcon, CalendarClock, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PremiumCard } from '@/components/ui/premium-card';
+import ComplaintBox from '@/components/ComplaintBox';
 
 const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -188,6 +189,9 @@ const StudentDashboard: React.FC = () => {
           <p className="text-xs text-muted-foreground mt-1">Your mentor will create a team and assign you to a project.</p>
         </div>
       )}
+
+      {/* Complaint box — always available; submissions surface on the mentor & admin dashboards */}
+      <ComplaintBox index={4} />
     </div>
   );
 };
