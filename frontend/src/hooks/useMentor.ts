@@ -100,6 +100,7 @@ export const useMentor = () => {
           project_title: project?.title || null,
           project_status: project?.status || 'Draft',
           project_id: project?.id ? String(project.id) : null,
+          project_updated_at: project?.updated_at || null,
           member_names: teamMembers.map((s: any) => s.name).join(', '),
           members: teamMembers.map((s: any) => ({
             id: String(s.id), name: s.name, email: s.email, rollNumber: s.roll_number,
