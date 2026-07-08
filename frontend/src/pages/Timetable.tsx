@@ -373,7 +373,7 @@ const TimetableGrid: React.FC<{
         </thead>
         <tbody>
           {SESSIONS.map((session, idx) => (
-            <tr key={session.id} className={cn('border-b border-border/50', idx % 2 === 0 ? 'bg-white dark:bg-card' : 'bg-muted/5')}>
+            <tr key={session.id} className={cn('border-b border-border/50', idx % 2 === 0 ? 'bg-white/[0.02]' : 'bg-transparent')}>
               <td className="py-6 px-4 border-r border-border/50">
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-primary">{session.label}</span>
