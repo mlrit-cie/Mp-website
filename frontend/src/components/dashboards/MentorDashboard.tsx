@@ -340,7 +340,7 @@ const MentorDashboard: React.FC = () => {
           </PremiumCard>
 
           {/* Student complaints raised via the student complaint box */}
-          <ComplaintsPanel index={4} />
+          <ComplaintsPanel index={5} />
         </div>
 
         <div className="lg:col-span-1 space-y-4">
