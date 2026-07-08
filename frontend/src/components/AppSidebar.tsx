@@ -64,7 +64,7 @@ const AppSidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
 
   return (
     <aside className={cn(
-      "h-screen bg-black/40 backdrop-blur-2xl flex flex-col border-r border-white/5 transition-all duration-300 sticky top-0 z-40",
+      "h-screen shrink-0 bg-[#0a0a0c]/95 backdrop-blur-xl flex flex-col border-r border-white/5 transition-all duration-300 sticky top-0 z-40",
       collapsed ? "w-[68px]" : "w-64"
     )}>
       {/* Logo */}
