@@ -205,7 +205,117 @@ const MentorDashboard: React.FC = () => {
             )}
           </PremiumCard>
 
-          <PremiumCard index={2} interactive="subtle" className="p-6">
+          {/* Section analytics — status breakdown donut + completion progress */}
+          <PremiumCard index={2} interactive="subtle" className="p-6 relative overflow-hidden bg-gradient-card-blue border-blue-500/20">
+            <div className="absolute -right-4 -top-4 w-28 h-28 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="flex items-center gap-2 mb-4">
+              <BarChart3 className="w-4 h-4 text-secondary" />
+              <h3 className="font-heading font-semibold text-white">Section Analytics</h3>
+              <span className="ml-auto text-[10px] text-muted-foreground">{assignedSections[0]?.name || 'current section'}</span>
+            </div>
+            {totalTeams > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                {/* Status distribution donut */}
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie
+                      data={statusData}
+                      dataKey="count"
+                      nameKey="status"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={85}
+                      innerRadius={48}
+                      paddingAngle={2}
+                      label={(e: any) => `${e.count}`}
+                      labelLine={false}
+                    >
+                      {statusData.map((d, i) => (
+                        <Cell key={i} fill={STATUS_COLORS[d.status] || 'hsl(0, 0%, 50%)'} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+
+                {/* Completion + pending reviews + legend */}
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-muted-foreground">Teams advanced</span>
+                      <span className="text-sm font-semibold text-white">{advancedTeams} / {totalTeams}</span>
+                    </div>
+                    <Progress value={completionPct} className="h-2" />
+                    <p className="text-[10px] text-muted-foreground mt-1.5">{completionPct}% past the Draft stage</p>
+                  </div>
+
+                  <div className="flex items-center gap-3 p-3.5 rounded-xl bg-amber-500/[0.06] border border-amber-500/20">
+                    <div className="w-9 h-9 rounded-lg bg-amber-500/15 text-amber-300 flex items-center justify-center border border-amber-500/30 shrink-0">
+                      <Clock className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold text-white leading-none">{pendingReviews}</p>
+                      <p className="text-[11px] text-muted-foreground mt-1">awaiting your review</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-x-3 gap-y-1.5">
+                    {statusData.map(d => (
+                      <div key={d.status} className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ background: STATUS_COLORS[d.status] || 'hsl(0, 0%, 50%)' }} />
+                        <span className="text-[10px] text-muted-foreground">{d.status} ({d.count})</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                No teams in this section yet — analytics appear once teams are created.
+              </p>
+            )}
+          </PremiumCard>
+
+          {/* Team activity — which teams are actively working (by recent project updates) */}
+          <PremiumCard index={3} interactive="subtle" className="p-6 relative overflow-hidden">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+            <div className="flex items-center gap-2 mb-4">
+              <Activity className="w-4 h-4 text-primary" />
+              <h3 className="font-heading font-semibold text-white">Team Activity</h3>
+              {totalTeams > 0 && (
+                <span className="ml-auto rounded-full bg-emerald-500/15 text-emerald-300 text-[11px] font-semibold px-2 py-0.5 border border-emerald-500/30">
+                  {activeTeamCount} active this week
+                </span>
+              )}
+            </div>
+            {teamActivity.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">No teams in this section yet.</p>
+            ) : (
+              <div className="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
+                {teamActivity.map(t => (
+                  <div key={t.id} className="flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5 hover:border-primary/20 transition-all duration-200">
+                    <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${t.isActive ? 'bg-emerald-400 shadow-[0_0_8px] shadow-emerald-400/50' : 'bg-white/20'}`} />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-white truncate">{t.name}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">
+                        {t.memberCount} member{t.memberCount === 1 ? '' : 's'}
+                        {t.projectTitle ? ` · ${t.projectTitle}` : ''}
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className={`text-[11px] font-medium ${t.isActive ? 'text-emerald-300' : 'text-muted-foreground'}`}>
+                        {t.isActive ? 'Active' : 'Quiet'}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground font-mono">{relTime(t.updated)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </PremiumCard>
+
+          <PremiumCard index={4} interactive="subtle" className="p-6 relative overflow-hidden">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
             <h3 className="font-heading font-semibold mb-4 text-white">Teams Overview</h3>
             {loading ? (
               <p className="text-sm text-muted-foreground text-center py-6">Loading teams...</p>
