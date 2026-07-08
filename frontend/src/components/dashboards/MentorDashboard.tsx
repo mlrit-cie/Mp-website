@@ -1,14 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import StatCard from '@/components/StatCard';
 import StatusBadge from '@/components/StatusBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { FolderKanban, FileCheck, Clock, Users, Calendar, Layers, Megaphone, Activity } from 'lucide-react';
+import { FolderKanban, FileCheck, Clock, Users, Calendar, Layers, Megaphone, Activity, BarChart3 } from 'lucide-react';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { Link } from 'react-router-dom';
 import { useMentor } from '@/hooks/useMentor';
 import { useAnnouncements } from '@/hooks/useAnnouncements';
 import { PremiumCard } from '@/components/ui/premium-card';
+import { Progress } from '@/components/ui/progress';
 import ComplaintsPanel from '@/components/ComplaintsPanel';
+
+/** Matches AdminDashboard's status palette so charts read consistently across roles. */
+const STATUS_COLORS: Record<string, string> = {
+  'Draft': 'hsl(0, 0%, 60%)',
+  'Student Mentor Review': 'hsl(38, 92%, 50%)',
+  'Faculty Review': 'hsl(215, 80%, 50%)',
+  'Approved': 'hsl(145, 63%, 42%)',
+  'Submitted to CIE': 'hsl(280, 60%, 50%)',
+  'Completed': 'hsl(145, 63%, 32%)',
+};
 
 const MentorDashboard: React.FC = () => {
   const { user } = useAuth();
