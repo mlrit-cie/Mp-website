@@ -69,7 +69,7 @@ export const useMentor = () => {
       // Fetch projects for these teams
       const { data: projects } = await supabase
         .from('projects')
-        .select('id, team_id, title, status, domain')
+        .select('id, team_id, title, status, domain, updated_at')
         .in('team_id', teamIds);
 
       // Fetch team members
