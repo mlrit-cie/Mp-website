@@ -317,7 +317,7 @@ const Timetable: React.FC = () => {
               {todaysClasses.length > 0 ? (
                 <div className="space-y-3">
                   {todaysClasses.map(e => (
-                    <div key={e.id} className="flex gap-3 bg-white/50 dark:bg-black/20 p-3 rounded-xl border border-primary/10">
+                    <div key={e.id} className="flex gap-3 bg-white/[0.03] p-3 rounded-xl border border-primary/10">
                       <div className="flex flex-col items-center justify-center bg-primary text-white px-2 py-1 rounded-lg text-[10px] font-bold min-w-[60px]">
                         <span>{e.start_time}</span>
                         <div className="w-full h-[1px] bg-white/30 my-0.5" />
