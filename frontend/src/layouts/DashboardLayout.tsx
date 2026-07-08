@@ -14,7 +14,7 @@ const DashboardLayout: React.FC = () => {
       </div>
 
       <AppSidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
-      <main className="flex-1 overflow-x-hidden relative z-10">
+      <main className="flex-1 min-w-0 overflow-x-hidden relative z-10">
         <div className="p-6 lg:p-8 max-w-7xl mx-auto">
           <Outlet />
         </div>
