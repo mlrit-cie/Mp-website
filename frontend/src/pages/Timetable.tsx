@@ -399,7 +399,7 @@ const TimetableGrid: React.FC<{
                           <p className="text-[10px] text-primary font-bold mb-2">{entry.subject}</p>
                           <div className="space-y-1.5 mb-2">
                             <div className="flex items-center gap-1.5 text-[9px]">
-                              <div className="w-1.5 h-1.5 rounded-full bg-blue-50" />
+                              <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
                               <span className="text-muted-foreground">Faculty:</span>
                               <span className="font-medium truncate">{entry.faculty_name}</span>
                             </div>
