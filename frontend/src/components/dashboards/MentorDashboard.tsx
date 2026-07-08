@@ -76,6 +76,51 @@ const MentorDashboard: React.FC = () => {
 
   const pendingReviews = currentSectionTeams.filter(t => t.project_status === 'Student Mentor Review').length;
 
+  // Team project-status distribution for the current section (drives the donut).
+  const statusData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    currentSectionTeams.forEach(t => {
+      const s = t.project_status || 'Draft';
+      counts[s] = (counts[s] || 0) + 1;
+    });
+    return Object.entries(counts).map(([status, count]) => ({ status, count }));
+  }, [currentSectionTeams]);
+
+  const totalTeams = currentSectionTeams.length;
+  const advancedTeams = currentSectionTeams.filter(t => (t.project_status || 'Draft') !== 'Draft').length;
+  const completionPct = totalTeams > 0 ? Math.round((advancedTeams / totalTeams) * 100) : 0;
+
+  // Team activity — how recently each team last touched its project. Teams updated
+  // within the past 7 days count as "active". Sorted most-recent first.
+  const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+  const teamActivity = useMemo(() => {
+    return currentSectionTeams
+      .map(t => {
+        const updated = t.project_updated_at ? new Date(t.project_updated_at).getTime() : null;
+        return {
+          id: t.id,
+          name: t.name,
+          memberCount: Array.isArray(t.members) ? t.members.length : 0,
+          projectTitle: t.project_title as string | null,
+          updated,
+          isActive: updated != null && (Date.now() - updated) <= SEVEN_DAYS,
+        };
+      })
+      .sort((a, b) => (b.updated || 0) - (a.updated || 0));
+  }, [currentSectionTeams]);
+
+  const activeTeamCount = teamActivity.filter(t => t.isActive).length;
+
+  const relTime = (ms: number | null) => {
+    if (!ms) return 'no activity yet';
+    const days = Math.floor((Date.now() - ms) / 86400000);
+    if (days <= 0) return 'today';
+    if (days === 1) return 'yesterday';
+    if (days < 7) return `${days}d ago`;
+    if (days < 30) return `${Math.floor(days / 7)}w ago`;
+    return `${Math.floor(days / 30)}mo ago`;
+  };
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div>
