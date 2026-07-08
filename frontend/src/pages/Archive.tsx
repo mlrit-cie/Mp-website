@@ -321,7 +321,7 @@ const ArchivePage: React.FC = () => {
     return (
       <div className="flex min-h-screen bg-background">
         <AppSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(s => !s)} />
-        <main className="flex-1 overflow-x-hidden">{content}</main>
+        <main className="flex-1 min-w-0 overflow-x-hidden">{content}</main>
       </div>
     );
   }
