@@ -64,8 +64,13 @@ const AppSidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
 
   return (
     <aside className={cn(
-      "h-screen shrink-0 bg-[#0a0a0c]/95 backdrop-blur-xl flex flex-col border-r border-white/5 transition-all duration-300 sticky top-0 z-40",
-      collapsed ? "w-[68px]" : "w-64"
+      "h-screen flex flex-col border-r border-white/5 transition-all duration-300 bg-[#0a0a0c]/95 backdrop-blur-xl z-40",
+      // Desktop positioning
+      "md:sticky md:top-0 md:bottom-auto md:left-auto md:shrink-0 md:translate-x-0",
+      collapsed ? "md:w-[68px]" : "md:w-64",
+      // Mobile positioning (floating drawer overlay)
+      "fixed inset-y-0 left-0 w-64 transform",
+      collapsed ? "-translate-x-full" : "translate-x-0"
     )}>
       {/* Logo */}
       <Link to="/" className="p-4 flex items-center gap-3 border-b border-white/5 hover:bg-white/5 transition-all duration-200">

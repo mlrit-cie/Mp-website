@@ -10,6 +10,7 @@ import { PremiumCard } from '@/components/ui/premium-card';
 import {
   Search, Github, Users, Loader2, ChevronLeft, ChevronRight,
   Archive as ArchiveIcon, LogIn, Layers, Sparkles, ArrowUpDown,
+  Menu, X,
 } from 'lucide-react';
 
 const PAGE_SIZE = 12;
@@ -43,7 +44,18 @@ const ArchivePage: React.FC = () => {
   const [domainFilter, setDomainFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'title'>('newest');
   const [page, setPage] = useState(1);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => window.innerWidth < 768);
+
+  // Auto-collapse sidebar on resize when switching to mobile breakpoint
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setSidebarCollapsed(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => { setPage(1); }, [search, yearFilter, domainFilter, sortBy]);
 
@@ -319,9 +331,39 @@ const ArchivePage: React.FC = () => {
   // Logged-in users get the same sidebar layout as every other page.
   if (user) {
     return (
-      <div className="flex min-h-screen bg-background">
+      <div className="flex min-h-screen bg-background relative overflow-hidden">
+        {/* Backdrop overlay on mobile when sidebar is open */}
+        {!sidebarCollapsed && (
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden transition-opacity duration-300 animate-fade-in"
+            onClick={() => setSidebarCollapsed(true)}
+          />
+        )}
         <AppSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(s => !s)} />
-        <main className="flex-1 min-w-0 overflow-x-hidden">{content}</main>
+        <main className="flex-1 min-w-0 overflow-x-hidden relative z-10 flex flex-col">
+          {/* Mobile top navigation header */}
+          <header className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#0a0a0c]/80 backdrop-blur-md md:hidden sticky top-0 z-20">
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="p-1.5 rounded-lg hover:bg-white/5 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Toggle Menu"
+            >
+              {sidebarCollapsed ? <Menu className="w-6 h-6" /> : <X className="w-6 h-6" />}
+            </button>
+            
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded bg-gradient-to-br from-emerald-500 to-blue-600 flex items-center justify-center shrink-0">
+                <span className="text-[10px] font-bold text-white">PS</span>
+              </div>
+              <span className="font-heading font-bold text-white text-sm tracking-tight">ProjectSphere</span>
+            </div>
+            
+            <div className="w-9" />
+          </header>
+          <div className="p-6 lg:p-8 max-w-7xl mx-auto w-full flex-1">
+            {content}
+          </div>
+        </main>
       </div>
     );
   }
