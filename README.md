@@ -102,12 +102,16 @@ Fully responsive design that works on:
 
 ## 🔧 Development
 
-### Available Scripts
+### Available Scripts (from repo root)
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production  
-npm run preview      # Preview production build
-npm run lint         # Run ESLint
+npm run install:all   # Install frontend + server dependencies
+npm run dev           # Start frontend dev server
+npm run build         # Build frontend for production
+npm run preview       # Preview production build
+npm run lint          # Run ESLint
+npm run test          # Run frontend tests
+npm run dev:server    # Start backend server (optional)
+npm run build:server  # Build backend server
 ```
 
 ## 📊 Database Schema
