@@ -17,10 +17,11 @@ Frontend (React + Vite) → Supabase Database
 - Node.js 18+ 
 - npm or yarn
 
+Run everything from the repo root — no need to `cd` into `frontend/`.
+
 ### 1. Install Dependencies
 ```bash
-cd frontend
-npm install
+npm run install:all
 ```
 
 ### 2. Start Development Server
