@@ -129,9 +129,11 @@ The system uses 10 main tables:
 
 ### Build for Production
 ```bash
-cd frontend
 npm run build
 ```
+
+### Vercel
+Set the project **Root Directory** to `frontend`. `frontend/vercel.json` rewrites all routes to `index.html` so React Router works on refresh.
 
 
 ## 📄 License
