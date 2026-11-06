@@ -29,7 +29,7 @@ npm run install:all
 npm run dev
 ```
 
-The app will be available at `http://localhost:8081/` (or next available port)
+The app will be available at `http://localhost:8080/` (or next available port)
 
 
 ## 🏗️ Project Structure
