@@ -17,10 +17,11 @@ Frontend (React + Vite) → Supabase Database
 - Node.js 18+ 
 - npm or yarn
 
+Run everything from the repo root — no need to `cd` into `frontend/`.
+
 ### 1. Install Dependencies
 ```bash
-cd frontend
-npm install
+npm run install:all
 ```
 
 ### 2. Start Development Server
@@ -28,7 +29,7 @@ npm install
 npm run dev
 ```
 
-The app will be available at `http://localhost:8081/` (or next available port)
+The app will be available at `http://localhost:8080/` (or next available port)
 
 
 ## 🏗️ Project Structure
@@ -101,13 +102,17 @@ Fully responsive design that works on:
 
 ## 🔧 Development
 
-### Available Scripts
+### Available Scripts (from repo root)
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production  
-npm run preview      # Preview production build
-npm run lint         # Run ESLint
-``
+npm run install:all   # Install frontend + server dependencies
+npm run dev           # Start frontend dev server
+npm run build         # Build frontend for production
+npm run preview       # Preview production build
+npm run lint          # Run ESLint
+npm run test          # Run frontend tests
+npm run dev:server    # Start backend server (optional)
+npm run build:server  # Build backend server
+```
 
 ## 📊 Database Schema
 
@@ -124,9 +129,11 @@ The system uses 10 main tables:
 
 ### Build for Production
 ```bash
-cd frontend
 npm run build
 ```
+
+### Vercel
+Set the project **Root Directory** to `frontend`. `frontend/vercel.json` rewrites all routes to `index.html` so React Router works on refresh.
 
 
 ## 📄 License
